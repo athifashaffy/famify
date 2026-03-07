@@ -11,3 +11,9 @@
     @apply bg-gray-50 text-slate-900 font-sans antialiased;
   }
 }
+
+@layer utilities {
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

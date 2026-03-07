@@ -432,10 +432,10 @@ export function PlannerPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-slate-900">Planner</h1>
-        <p className="text-slate-600 mt-1">Manage your family's schedule and activities</p>
+    <div className="p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="mb-4 md:mb-6">
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900">Planner</h1>
+        <p className="text-sm md:text-base text-slate-600 mt-1">Manage your family's schedule and activities</p>
       </div>
 
       {/* Tab Navigation */}
@@ -450,7 +450,7 @@ export function PlannerPage() {
                 setShowForm(false);
                 setFormData({});
               }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm md:text-base font-medium transition-colors whitespace-nowrap ${
                 activeTab === tab.id
                   ? 'bg-emerald-500 text-white'
                   : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'

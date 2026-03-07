@@ -83,34 +83,36 @@ export function DashboardPage() {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-4 md:p-6 bg-gray-50 min-h-screen">
       {/* Header Bar */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="text-slate-500">☀️ 24°C</div>
-        <div className="flex-1 text-center">
-          <h1 className="text-3xl font-bold text-slate-900">
-            {getGreeting()}, {profile?.name}!
-          </h1>
-          <div className="flex items-center justify-center gap-2 mt-2">
-            {members.slice(0, 3).map((member) => (
-              <div
-                key={member.id}
-                className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow-sm"
-              >
+      <div className="mb-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="hidden md:block text-slate-500">☀️ 24°C</div>
+          <div className="text-center">
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
+              {getGreeting()}, {profile?.name}!
+            </h1>
+            <div className="flex items-center justify-center gap-2 mt-2 flex-wrap">
+              {members.slice(0, 3).map((member) => (
                 <div
-                  className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
-                  style={{ backgroundColor: '#10B981' }}
+                  key={member.id}
+                  className="flex items-center gap-2 bg-white rounded-full px-3 py-1 shadow-sm"
                 >
-                  {getInitials(member.name || '')}
+                  <div
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-medium"
+                    style={{ backgroundColor: '#10B981' }}
+                  >
+                    {getInitials(member.name || '')}
+                  </div>
+                  <span className="text-sm">{member.name}</span>
                 </div>
-                <span className="text-sm">{member.name}</span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="text-right">
-          <div className="text-3xl font-bold text-slate-900">{currentTime}</div>
-          <div className="text-sm text-slate-500">{currentDate}</div>
+          <div className="hidden md:block text-right">
+            <div className="text-3xl font-bold text-slate-900">{currentTime}</div>
+            <div className="text-sm text-slate-500">{currentDate}</div>
+          </div>
         </div>
       </div>
 

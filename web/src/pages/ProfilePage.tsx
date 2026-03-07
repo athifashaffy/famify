@@ -15,8 +15,8 @@ export function ProfilePage() {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-3xl font-bold text-slate-900 mb-6">Profile</h1>
+    <div className="p-4 md:p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">Profile</h1>
 
       <div className="space-y-6">
         <Card>
