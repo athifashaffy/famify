@@ -5,12 +5,24 @@ import { supabase } from '../lib/supabase';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Event, Task, List, MealPlan, Reminder, Note } from '../lib/types';
+import { Event, Task, List, MealPlan, Reminder, Note, Routine, ChildProfile, RoutineCategory } from '../lib/types';
 import { CATEGORY_COLORS, MEAL_COLORS } from '../lib/constants';
-import { format, parseISO } from 'date-fns';
-import { Calendar, CheckSquare, ShoppingCart, UtensilsCrossed, Bell, StickyNote, Plus, X } from 'lucide-react';
+import { format, parseISO, isToday, startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
+import { Calendar, CheckSquare, ShoppingCart, UtensilsCrossed, Bell, StickyNote, Plus, X, RotateCcw, Trash2, User, Repeat, Eye } from 'lucide-react';
 
-type TabType = 'calendar' | 'tasks' | 'lists' | 'meals' | 'reminders' | 'notes';
+type TabType = 'calendar' | 'tasks' | 'lists' | 'meals' | 'reminders' | 'notes' | 'routines';
+
+const ROUTINE_CATEGORIES: { value: RoutineCategory; label: string; emoji: string }[] = [
+  { value: 'morning', label: 'Morning', emoji: '🌅' },
+  { value: 'bedtime', label: 'Bedtime', emoji: '🌙' },
+  { value: 'mealtime', label: 'Mealtime', emoji: '🍽' },
+  { value: 'school', label: 'School', emoji: '📚' },
+  { value: 'afterschool', label: 'After School', emoji: '⚽' },
+  { value: 'weekend', label: 'Weekend', emoji: '🎉' },
+  { value: 'custom', label: 'Custom', emoji: '📋' },
+];
+
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 export function PlannerPage() {
   const { family } = useFamily();
@@ -25,7 +37,10 @@ export function PlannerPage() {
   const [meals, setMeals] = useState<MealPlan[]>([]);
   const [reminders, setReminders] = useState<Reminder[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [routines, setRoutines] = useState<Routine[]>([]);
+  const [children, setChildren] = useState<ChildProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [calendarView, setCalendarView] = useState<'today' | 'week'>('today');
 
   // Form states
   const [formData, setFormData] = useState<any>({});
@@ -33,8 +48,19 @@ export function PlannerPage() {
   useEffect(() => {
     if (family) {
       loadData();
+      fetchChildren();
     }
   }, [family, activeTab]);
+
+  const fetchChildren = async () => {
+    if (!family) return;
+    const { data } = await supabase
+      .from('child_profiles')
+      .select('*')
+      .eq('family_id', family.id)
+      .order('created_at');
+    if (data) setChildren(data);
+  };
 
   const loadData = async () => {
     if (!family) return;
@@ -74,6 +100,7 @@ export function PlannerPage() {
           .from('reminders')
           .select('*')
           .eq('family_id', family.id)
+          .order('is_completed')
           .order('remind_at');
         setReminders(data || []);
       } else if (activeTab === 'notes') {
@@ -83,6 +110,14 @@ export function PlannerPage() {
           .eq('family_id', family.id)
           .order('created_at', { ascending: false });
         setNotes(data || []);
+      } else if (activeTab === 'routines') {
+        const { data } = await supabase
+          .from('routines')
+          .select('*')
+          .eq('family_id', family.id)
+          .order('sort_order')
+          .order('time_of_day');
+        setRoutines(data || []);
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -106,6 +141,7 @@ export function PlannerPage() {
           end_time: formData.end_time,
           location: formData.location,
           category: formData.category || 'other',
+          assigned_to: formData.assigned_to ? [formData.assigned_to] : [],
         });
       } else if (activeTab === 'tasks') {
         await supabase.from('tasks').insert({
@@ -115,6 +151,8 @@ export function PlannerPage() {
           description: formData.description,
           due_date: formData.due_date,
           priority: formData.priority || 'medium',
+          assigned_to: formData.assigned_to || null,
+          recurrence: formData.recurrence ? { pattern: formData.recurrence } : null,
         });
       } else if (activeTab === 'lists') {
         await supabase.from('lists').insert({
@@ -145,6 +183,17 @@ export function PlannerPage() {
           title: formData.title,
           content: formData.content,
         });
+      } else if (activeTab === 'routines') {
+        await supabase.from('routines').insert({
+          family_id: family.id,
+          created_by: user.id,
+          title: formData.title,
+          description: formData.description,
+          category: formData.category || 'custom',
+          time_of_day: formData.time_of_day || null,
+          child_id: formData.child_id || null,
+          days_of_week: formData.days_of_week || [1, 2, 3, 4, 5, 6, 7],
+        });
       }
 
       setFormData({});
@@ -163,9 +212,49 @@ export function PlannerPage() {
     loadData();
   };
 
+  const toggleRoutineActive = async (routineId: string, isActive: boolean) => {
+    await supabase
+      .from('routines')
+      .update({ is_active: !isActive })
+      .eq('id', routineId);
+    loadData();
+  };
+
+  const deleteRoutine = async (routineId: string) => {
+    await supabase.from('routines').delete().eq('id', routineId);
+    loadData();
+  };
+
+  const toggleReminder = async (reminderId: string, isCompleted: boolean) => {
+    await supabase
+      .from('reminders')
+      .update({ is_completed: !isCompleted })
+      .eq('id', reminderId);
+    loadData();
+  };
+
+  const deleteTask = async (taskId: string) => {
+    await supabase.from('tasks').delete().eq('id', taskId);
+    loadData();
+  };
+
+  const deleteEvent = async (eventId: string) => {
+    await supabase.from('events').delete().eq('id', eventId);
+    loadData();
+  };
+
+  const toggleDayOfWeek = (day: number) => {
+    const current = formData.days_of_week || [1, 2, 3, 4, 5, 6, 7];
+    const updated = current.includes(day)
+      ? current.filter((d: number) => d !== day)
+      : [...current, day].sort();
+    setFormData({ ...formData, days_of_week: updated });
+  };
+
   const tabs = [
     { id: 'calendar' as TabType, label: 'Calendar', icon: Calendar },
     { id: 'tasks' as TabType, label: 'Tasks', icon: CheckSquare },
+    { id: 'routines' as TabType, label: 'Routine', icon: RotateCcw },
     { id: 'lists' as TabType, label: 'Lists', icon: ShoppingCart },
     { id: 'meals' as TabType, label: 'Meals', icon: UtensilsCrossed },
     { id: 'reminders' as TabType, label: 'Reminders', icon: Bell },
@@ -226,19 +315,36 @@ export function PlannerPage() {
                   placeholder="Event location"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
-                <select
-                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
-                  value={formData.category || 'other'}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                >
-                  <option value="health">Health</option>
-                  <option value="family">Family</option>
-                  <option value="activity">Activity</option>
-                  <option value="chores">Chores</option>
-                  <option value="other">Other</option>
-                </select>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                  <select
+                    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    value={formData.category || 'other'}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    <option value="health">Health</option>
+                    <option value="family">Family</option>
+                    <option value="activity">Activity</option>
+                    <option value="chores">Chores</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+                {children.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Assign to Child</label>
+                    <select
+                      className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                      value={formData.assigned_to || ''}
+                      onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value || null })}
+                    >
+                      <option value="">Everyone</option>
+                      {children.map((child) => (
+                        <option key={child.id} value={child.id}>{child.name || 'Unnamed'}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
             </>
           )}
@@ -283,6 +389,36 @@ export function PlannerPage() {
                     <option value="low">Low</option>
                     <option value="medium">Medium</option>
                     <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {children.length > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Assign to Child</label>
+                    <select
+                      className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                      value={formData.assigned_to || ''}
+                      onChange={(e) => setFormData({ ...formData, assigned_to: e.target.value || null })}
+                    >
+                      <option value="">Unassigned</option>
+                      {children.map((child) => (
+                        <option key={child.id} value={child.id}>{child.name || 'Unnamed'}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Repeat</label>
+                  <select
+                    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    value={formData.recurrence || ''}
+                    onChange={(e) => setFormData({ ...formData, recurrence: e.target.value || null })}
+                  >
+                    <option value="">No repeat</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
                   </select>
                 </div>
               </div>
@@ -401,6 +537,92 @@ export function PlannerPage() {
             </>
           )}
 
+          {activeTab === 'routines' && (
+            <>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Routine Title</label>
+                <Input
+                  required
+                  value={formData.title || ''}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  placeholder="e.g., Brush teeth, Pack lunch, Bedtime story"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Description</label>
+                <textarea
+                  className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                  value={formData.description || ''}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Steps or details for this routine"
+                  rows={2}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Category</label>
+                  <select
+                    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    value={formData.category || 'custom'}
+                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                  >
+                    {ROUTINE_CATEGORIES.map((cat) => (
+                      <option key={cat.value} value={cat.value}>
+                        {cat.emoji} {cat.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Time</label>
+                  <Input
+                    type="time"
+                    value={formData.time_of_day || ''}
+                    onChange={(e) => setFormData({ ...formData, time_of_day: e.target.value })}
+                  />
+                </div>
+              </div>
+              {children.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Assign to Child</label>
+                  <select
+                    className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm"
+                    value={formData.child_id || ''}
+                    onChange={(e) => setFormData({ ...formData, child_id: e.target.value || null })}
+                  >
+                    <option value="">All children / Family</option>
+                    {children.map((child) => (
+                      <option key={child.id} value={child.id}>{child.name || 'Unnamed'}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Days of Week</label>
+                <div className="flex gap-2">
+                  {DAYS.map((day, i) => {
+                    const dayNum = i + 1;
+                    const selected = (formData.days_of_week || [1, 2, 3, 4, 5, 6, 7]).includes(dayNum);
+                    return (
+                      <button
+                        key={day}
+                        type="button"
+                        onClick={() => toggleDayOfWeek(dayNum)}
+                        className={`w-10 h-10 rounded-full text-xs font-medium transition-colors ${
+                          selected
+                            ? 'bg-emerald-500 text-white'
+                            : 'bg-slate-100 text-slate-500 hover:bg-slate-200'
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
+
           <div className="flex gap-2 pt-2">
             <Button type="submit" className="bg-emerald-500 hover:bg-emerald-600">
               Create
@@ -465,16 +687,35 @@ export function PlannerPage() {
 
       {/* Tab Content */}
       <div className="space-y-4">
-        {/* Add Button */}
+        {/* Add Button + View Toggle */}
         <div className="flex justify-between items-center">
-          <h2 className="text-xl font-semibold text-slate-900">
-            {activeTab === 'calendar' && 'Upcoming Events'}
-            {activeTab === 'tasks' && 'Tasks'}
-            {activeTab === 'lists' && 'Shopping Lists'}
-            {activeTab === 'meals' && 'Meal Plan'}
-            {activeTab === 'reminders' && 'Reminders'}
-            {activeTab === 'notes' && 'Family Notes'}
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-semibold text-slate-900">
+              {activeTab === 'calendar' && 'Events'}
+              {activeTab === 'tasks' && 'Tasks'}
+              {activeTab === 'routines' && 'Family Routines'}
+              {activeTab === 'lists' && 'Shopping Lists'}
+              {activeTab === 'meals' && 'Meal Plan'}
+              {activeTab === 'reminders' && 'Reminders'}
+              {activeTab === 'notes' && 'Family Notes'}
+            </h2>
+            {activeTab === 'calendar' && (
+              <div className="flex bg-white border border-slate-200 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setCalendarView('today')}
+                  className={`px-3 py-1.5 text-xs font-medium ${calendarView === 'today' ? 'bg-emerald-500 text-white' : 'text-slate-600'}`}
+                >
+                  Today
+                </button>
+                <button
+                  onClick={() => setCalendarView('week')}
+                  className={`px-3 py-1.5 text-xs font-medium ${calendarView === 'week' ? 'bg-emerald-500 text-white' : 'text-slate-600'}`}
+                >
+                  This Week
+                </button>
+              </div>
+            )}
+          </div>
           <Button
             onClick={() => setShowForm(!showForm)}
             className="bg-emerald-500 hover:bg-emerald-600"
@@ -487,7 +728,7 @@ export function PlannerPage() {
             ) : (
               <>
                 <Plus size={16} className="mr-2" />
-                Add {activeTab === 'calendar' ? 'Event' : activeTab === 'tasks' ? 'Task' : activeTab === 'lists' ? 'List' : activeTab === 'meals' ? 'Meal' : activeTab === 'reminders' ? 'Reminder' : 'Note'}
+                Add {activeTab === 'calendar' ? 'Event' : activeTab === 'tasks' ? 'Task' : activeTab === 'routines' ? 'Routine' : activeTab === 'lists' ? 'List' : activeTab === 'meals' ? 'Meal' : activeTab === 'reminders' ? 'Reminder' : 'Note'}
               </>
             )}
           </Button>
@@ -504,35 +745,58 @@ export function PlannerPage() {
         ) : (
           <>
             {/* CALENDAR TAB */}
-            {activeTab === 'calendar' && (
-              events.length === 0 && !showForm ? (
+            {activeTab === 'calendar' && (() => {
+              const now = new Date();
+              const weekStart = startOfWeek(now, { weekStartsOn: 1 });
+              const weekEnd = endOfWeek(now, { weekStartsOn: 1 });
+              const filteredEvents = events.filter((event) => {
+                const eventDate = parseISO(event.start_time);
+                if (calendarView === 'today') return isToday(eventDate);
+                return isWithinInterval(eventDate, { start: weekStart, end: weekEnd });
+              });
+              return filteredEvents.length === 0 && !showForm ? (
                 <Card className="p-8 text-center">
-                  <p className="text-slate-600">No events scheduled</p>
+                  <p className="text-slate-600">No events {calendarView === 'today' ? 'today' : 'this week'}</p>
                 </Card>
               ) : (
                 <div className="grid gap-3">
-                  {events.map((event) => (
-                    <Card key={event.id} className={`p-4 border-l-4 ${CATEGORY_COLORS[event.category]?.border || 'border-l-slate-300'}`}>
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-slate-900">{event.title}</h3>
-                          {event.description && (
-                            <p className="text-sm text-slate-600 mt-1">{event.description}</p>
-                          )}
-                          <div className="flex gap-3 mt-2 text-sm text-slate-500">
-                            <span>{format(parseISO(event.start_time), 'MMM d, yyyy • h:mm a')}</span>
-                            {event.location && <span>📍 {event.location}</span>}
+                  {filteredEvents.map((event) => {
+                    const assignedChild = event.assigned_to?.length ? children.find((c) => c.id === event.assigned_to[0]) : null;
+                    return (
+                      <Card key={event.id} className={`p-4 border-l-4 ${CATEGORY_COLORS[event.category]?.border || 'border-l-slate-300'}`}>
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-semibold text-slate-900">{event.title}</h3>
+                              {assignedChild && (
+                                <span className="px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full text-xs flex items-center gap-1">
+                                  <User size={10} /> {assignedChild.name}
+                                </span>
+                              )}
+                            </div>
+                            {event.description && (
+                              <p className="text-sm text-slate-600 mt-1">{event.description}</p>
+                            )}
+                            <div className="flex gap-3 mt-2 text-sm text-slate-500">
+                              <span>{format(parseISO(event.start_time), 'MMM d, yyyy • h:mm a')}</span>
+                              {event.location && <span>📍 {event.location}</span>}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className={`px-2 py-1 rounded text-xs ${CATEGORY_COLORS[event.category]?.bg || 'bg-slate-100'} ${CATEGORY_COLORS[event.category]?.text || 'text-slate-700'}`}>
+                              {event.category}
+                            </span>
+                            <button onClick={() => deleteEvent(event.id)} className="text-slate-400 hover:text-rose-600 p-1">
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         </div>
-                        <span className={`px-2 py-1 rounded text-xs ${CATEGORY_COLORS[event.category]?.bg || 'bg-slate-100'} ${CATEGORY_COLORS[event.category]?.text || 'text-slate-700'}`}>
-                          {event.category}
-                        </span>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
-              )
-            )}
+              );
+            })()}
 
             {/* TASKS TAB */}
             {activeTab === 'tasks' && (
@@ -542,38 +806,57 @@ export function PlannerPage() {
                 </Card>
               ) : (
                 <div className="grid gap-3">
-                  {tasks.map((task) => (
-                    <Card key={task.id} className="p-4">
-                      <div className="flex items-start gap-3">
-                        <input
-                          type="checkbox"
-                          checked={task.is_completed}
-                          onChange={() => toggleTask(task.id, task.is_completed)}
-                          className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                        />
-                        <div className="flex-1">
-                          <h3 className={`font-medium ${task.is_completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>
-                            {task.title}
-                          </h3>
-                          {task.description && (
-                            <p className="text-sm text-slate-600 mt-1">{task.description}</p>
-                          )}
-                          <div className="flex gap-3 mt-2 text-sm text-slate-500">
-                            {task.due_date && (
-                              <span>Due {format(parseISO(task.due_date), 'MMM d, yyyy')}</span>
+                  {tasks.map((task) => {
+                    const assignedChild = task.assigned_to ? children.find((c) => c.id === task.assigned_to) : null;
+                    const recurrence = (task as any).recurrence;
+                    return (
+                      <Card key={task.id} className="p-4">
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={task.is_completed}
+                            onChange={() => toggleTask(task.id, task.is_completed)}
+                            className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <h3 className={`font-medium ${task.is_completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+                                {task.title}
+                              </h3>
+                              {assignedChild && (
+                                <span className="px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full text-xs flex items-center gap-1">
+                                  <User size={10} /> {assignedChild.name}
+                                </span>
+                              )}
+                              {recurrence?.pattern && (
+                                <span className="px-2 py-0.5 bg-violet-100 text-violet-700 rounded-full text-xs flex items-center gap-1">
+                                  <Repeat size={10} /> {recurrence.pattern}
+                                </span>
+                              )}
+                            </div>
+                            {task.description && (
+                              <p className="text-sm text-slate-600 mt-1">{task.description}</p>
                             )}
-                            <span className={`px-2 py-0.5 rounded text-xs ${
-                              task.priority === 'high' ? 'bg-rose-100 text-rose-700' :
-                              task.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
-                              'bg-slate-100 text-slate-700'
-                            }`}>
-                              {task.priority}
-                            </span>
+                            <div className="flex gap-3 mt-2 text-sm text-slate-500">
+                              {task.due_date && (
+                                <span>Due {format(parseISO(task.due_date), 'MMM d, yyyy')}</span>
+                              )}
+                              <span className={`px-2 py-0.5 rounded text-xs ${
+                                task.priority === 'high' ? 'bg-rose-100 text-rose-700' :
+                                task.priority === 'medium' ? 'bg-amber-100 text-amber-700' :
+                                'bg-slate-100 text-slate-700'
+                              }`}>
+                                {task.priority}
+                              </span>
+                            </div>
                           </div>
+                          <button onClick={() => deleteTask(task.id)} className="text-slate-400 hover:text-rose-600 p-1">
+                            <Trash2 size={14} />
+                          </button>
                         </div>
-                      </div>
-                    </Card>
-                  ))}
+                      </Card>
+                    );
+                  })}
                 </div>
               )
             )}
@@ -637,15 +920,25 @@ export function PlannerPage() {
               ) : (
                 <div className="grid gap-3">
                   {reminders.map((reminder) => (
-                    <Card key={reminder.id} className="p-4">
+                    <Card key={reminder.id} className={`p-4 ${reminder.is_completed ? 'opacity-50' : ''}`}>
                       <div className="flex items-start gap-3">
-                        <Bell size={20} className="text-emerald-600 mt-0.5" />
+                        <input
+                          type="checkbox"
+                          checked={reminder.is_completed}
+                          onChange={() => toggleReminder(reminder.id, reminder.is_completed)}
+                          className="mt-1 h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                        />
                         <div className="flex-1">
-                          <h3 className="font-medium text-slate-900">{reminder.title}</h3>
+                          <h3 className={`font-medium ${reminder.is_completed ? 'line-through text-slate-400' : 'text-slate-900'}`}>
+                            {reminder.title}
+                          </h3>
                           <p className="text-sm text-slate-600 mt-1">
                             {format(parseISO(reminder.remind_at), 'MMM d, yyyy • h:mm a')}
                           </p>
                         </div>
+                        {!reminder.is_completed && (
+                          <Bell size={18} className="text-emerald-500 mt-0.5" />
+                        )}
                       </div>
                     </Card>
                   ))}
@@ -668,6 +961,95 @@ export function PlannerPage() {
                       <p className="text-xs text-slate-500">{format(parseISO(note.created_at), 'MMM d, yyyy')}</p>
                     </Card>
                   ))}
+                </div>
+              )
+            )}
+
+            {/* ROUTINES TAB */}
+            {activeTab === 'routines' && (
+              routines.length === 0 && !showForm ? (
+                <Card className="p-8 text-center">
+                  <div className="mb-4">
+                    <RotateCcw size={48} className="mx-auto text-slate-300 mb-3" />
+                    <p className="text-slate-600 font-medium">No routines created yet</p>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Routines help establish structure and security for your family.
+                      Create morning, bedtime, or mealtime routines to build healthy habits.
+                    </p>
+                  </div>
+                </Card>
+              ) : (
+                <div className="space-y-3">
+                  {ROUTINE_CATEGORIES.map((cat) => {
+                    const catRoutines = routines.filter((r) => r.category === cat.value);
+                    if (catRoutines.length === 0) return null;
+                    return (
+                      <div key={cat.value}>
+                        <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-2">
+                          {cat.emoji} {cat.label}
+                        </h3>
+                        <div className="grid gap-2">
+                          {catRoutines.map((routine) => {
+                            const assignedChild = children.find((c) => c.id === routine.child_id);
+                            return (
+                              <Card key={routine.id} className={`p-4 ${!routine.is_active ? 'opacity-50' : ''}`}>
+                                <div className="flex items-start justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-2">
+                                      <h3 className="font-medium text-slate-900">{routine.title}</h3>
+                                      {assignedChild && (
+                                        <span className="px-2 py-0.5 bg-sky-100 text-sky-700 rounded-full text-xs">
+                                          {assignedChild.name}
+                                        </span>
+                                      )}
+                                      {!routine.is_active && (
+                                        <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-full text-xs">
+                                          Paused
+                                        </span>
+                                      )}
+                                    </div>
+                                    {routine.description && (
+                                      <p className="text-sm text-slate-600 mt-1">{routine.description}</p>
+                                    )}
+                                    <div className="flex items-center gap-3 mt-2 text-xs text-slate-500">
+                                      {routine.time_of_day && (
+                                        <span>
+                                          {format(new Date(`2000-01-01T${routine.time_of_day}`), 'h:mm a')}
+                                        </span>
+                                      )}
+                                      <span>
+                                        {routine.days_of_week.length === 7
+                                          ? 'Every day'
+                                          : routine.days_of_week.map((d) => DAYS[d - 1]).join(', ')}
+                                      </span>
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1">
+                                    <button
+                                      onClick={() => toggleRoutineActive(routine.id, routine.is_active)}
+                                      className={`px-2 py-1 rounded text-xs ${
+                                        routine.is_active
+                                          ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'
+                                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                      }`}
+                                    >
+                                      {routine.is_active ? 'Active' : 'Resume'}
+                                    </button>
+                                    <button
+                                      onClick={() => deleteRoutine(routine.id)}
+                                      className="text-slate-400 hover:text-rose-600 p-1"
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+                                  </div>
+                                </div>
+                              </Card>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )
             )}

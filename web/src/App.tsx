@@ -9,7 +9,6 @@ import { RegisterPage } from './pages/RegisterPage';
 import { FamilySetupPage } from './pages/FamilySetupPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PlannerPage } from './pages/PlannerPage';
-import { FeedPage } from './pages/FeedPage';
 import { NeedlePage } from './pages/NeedlePage';
 import { NotificationsPage } from './pages/NotificationsPage';
 import { ProfilePage } from './pages/ProfilePage';
@@ -42,7 +41,6 @@ function App() {
               >
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/planner" element={<PlannerPage />} />
-                <Route path="/feed" element={<FeedPage />} />
                 <Route path="/needle" element={<NeedlePage />} />
                 <Route path="/notifications" element={<NotificationsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />

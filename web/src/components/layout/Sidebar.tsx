@@ -1,11 +1,10 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, MessageCircle, MapPin, Bell, User } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, MapPin, Bell, User } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/planner', icon: CalendarDays, label: 'Planner' },
-  { to: '/feed', icon: MessageCircle, label: 'Feed' },
   { to: '/needle', icon: MapPin, label: 'Needle' },
   { to: '/notifications', icon: Bell, label: 'Notifications' },
   { to: '/profile', icon: User, label: 'Profile' },

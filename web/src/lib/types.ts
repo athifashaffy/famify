@@ -4,6 +4,9 @@ export interface Profile {
   avatar_url: string | null;
   role: 'parent' | 'child' | 'caregiver' | null;
   date_of_birth: string | null;
+  location: string | null;
+  bio: string | null;
+  parenting_stage: string | null;
   preferences: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -36,10 +39,37 @@ export interface ChildProfile {
   user_id: string | null;
   parent_id: string | null;
   family_id: string | null;
+  name: string | null;
+  date_of_birth: string | null;
+  allergies: string[];
+  medical_notes: string | null;
+  food_preferences: string[];
+  hobbies: string[];
+  likes: string | null;
+  dislikes: string | null;
+  custom_notes: string | null;
   permissions: Record<string, any>;
   interests: string[];
   age_group: string | null;
   created_at: string;
+}
+
+export type RoutineCategory = 'morning' | 'bedtime' | 'mealtime' | 'school' | 'afterschool' | 'weekend' | 'custom';
+
+export interface Routine {
+  id: string;
+  family_id: string;
+  child_id: string | null;
+  title: string;
+  description: string | null;
+  category: RoutineCategory;
+  time_of_day: string | null;
+  days_of_week: number[];
+  is_active: boolean;
+  sort_order: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
 }
 
 export type EventCategory = 'health' | 'family' | 'activity' | 'chores' | 'other';
