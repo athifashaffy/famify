@@ -10,7 +10,7 @@ import { Event, Task, MealPlan, Reminder, Note, Notification, ChildProfile } fro
 import { CATEGORY_COLORS, MEAL_COLORS } from '../lib/constants';
 import { format, differenceInYears, differenceInMonths } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X, Bell, Baby, Heart } from 'lucide-react';
+import { Plus, X, Bell, Baby } from 'lucide-react';
 
 export function DashboardPage() {
   const { profile, user } = useAuth();

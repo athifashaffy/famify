@@ -6,7 +6,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { SavedPlace } from '../lib/types';
-import { Search, MapPin, Phone, Navigation, Star, Heart, Clock, Filter, List, Map, X, Bookmark, BookmarkCheck } from 'lucide-react';
+import { Search, MapPin, Phone, Navigation, Star, Filter, List, Map, X, Bookmark, BookmarkCheck } from 'lucide-react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 

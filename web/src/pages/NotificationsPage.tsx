@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useFamily } from '../context/FamilyContext';
 import { supabase } from '../lib/supabase';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Notification } from '../lib/types';
 import { format, parseISO } from 'date-fns';
-import { Bell, Check, CheckCheck, Calendar, Baby, MapPin, AlertCircle } from 'lucide-react';
+import { Bell, CheckCheck, Calendar, Baby, MapPin, AlertCircle } from 'lucide-react';
 
 const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
   planner: Calendar,
@@ -17,7 +16,6 @@ const NOTIFICATION_ICONS: Record<string, typeof Bell> = {
 
 export function NotificationsPage() {
   const { user } = useAuth();
-  const { family } = useFamily();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
 

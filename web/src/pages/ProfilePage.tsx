@@ -7,7 +7,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ChildProfile } from '../lib/types';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X, Edit2, Trash2, Save, Baby, User, MapPin, Heart } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, Baby, User, MapPin, Heart } from 'lucide-react';
 import { format } from 'date-fns';
 
 const PARENTING_STAGES = [

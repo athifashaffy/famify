@@ -12,8 +12,6 @@ dist/
 build/
 
 # Environment variables
-.env
-.env.local
 .env.development.local
 .env.test.local
 .env.production.local
@@ -49,3 +47,4 @@ mobile/pubspec.lock
 *.swo
 *~
 .cache
+config.bat

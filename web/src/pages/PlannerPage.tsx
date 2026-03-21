@@ -8,7 +8,7 @@ import { Input } from '../components/ui/input';
 import { Event, Task, List, MealPlan, Reminder, Note, Routine, ChildProfile, RoutineCategory } from '../lib/types';
 import { CATEGORY_COLORS, MEAL_COLORS } from '../lib/constants';
 import { format, parseISO, isToday, startOfWeek, endOfWeek, isWithinInterval } from 'date-fns';
-import { Calendar, CheckSquare, ShoppingCart, UtensilsCrossed, Bell, StickyNote, Plus, X, RotateCcw, Trash2, User, Repeat, Eye } from 'lucide-react';
+import { Calendar, CheckSquare, ShoppingCart, UtensilsCrossed, Bell, StickyNote, Plus, X, RotateCcw, Trash2, User, Repeat } from 'lucide-react';
 
 type TabType = 'calendar' | 'tasks' | 'lists' | 'meals' | 'reminders' | 'notes' | 'routines';
 
