@@ -43,55 +43,55 @@ interface PlaceResult {
   longitude: number;
 }
 
-// Sample curated data for MVP (manually seeded as per docs)
+// Sample curated data for MVP - Sudbury, ON
 const SAMPLE_PLACES: PlaceResult[] = [
   {
-    id: '1', name: 'KidsCare Pediatric Clinic', address: '123 Main St, Toronto, ON',
+    id: '1', name: 'Sudbury Pediatric Clinic', address: '865 Regent St, Sudbury, ON',
     category: 'doctor', rating: 4.8, reviewCount: 234, distance: '1.2 km',
-    isOpen: true, phone: '+1-416-555-0101', description: 'Full-service pediatric clinic with walk-in hours',
-    latitude: 43.6532, longitude: -79.3832,
+    isOpen: true, phone: '+1-705-555-0101', description: 'Full-service pediatric clinic with walk-in hours',
+    latitude: 46.4894, longitude: -80.9930,
   },
   {
-    id: '2', name: 'MediPlus 24/7 Pharmacy', address: '456 Queen St W, Toronto, ON',
+    id: '2', name: 'Shoppers Drug Mart', address: '1485 LaSalle Blvd, Sudbury, ON',
     category: 'pharmacy', rating: 4.5, reviewCount: 189, distance: '0.8 km',
-    isOpen: true, phone: '+1-416-555-0102', description: '24-hour pharmacy with baby supplies section',
-    latitude: 43.6489, longitude: -79.3977,
+    isOpen: true, phone: '+1-705-555-0102', description: '24-hour pharmacy with baby supplies section',
+    latitude: 46.5050, longitude: -81.0130,
   },
   {
-    id: '3', name: 'Little Stars Daycare', address: '789 College St, Toronto, ON',
+    id: '3', name: 'Little Nickel Daycare', address: '245 Elm St, Sudbury, ON',
     category: 'daycare', rating: 4.9, reviewCount: 156, distance: '2.3 km',
-    isOpen: true, phone: '+1-416-555-0103', description: 'Licensed daycare for ages 6 months to 5 years',
-    latitude: 43.6556, longitude: -79.4100,
+    isOpen: true, phone: '+1-705-555-0103', description: 'Licensed daycare for ages 6 months to 5 years',
+    latitude: 46.4920, longitude: -81.0050,
   },
   {
-    id: '4', name: 'SuperKids Soccer Academy', address: '321 Bloor St W, Toronto, ON',
+    id: '4', name: 'Sudbury Soccer Academy', address: '1100 Bancroft Dr, Sudbury, ON',
     category: 'activities', rating: 4.7, reviewCount: 98, distance: '3.1 km',
-    isOpen: false, phone: '+1-416-555-0104', description: 'Soccer programs for kids ages 3-12',
-    latitude: 43.6629, longitude: -79.4093,
+    isOpen: false, phone: '+1-705-555-0104', description: 'Soccer programs for kids ages 3-12',
+    latitude: 46.4750, longitude: -80.9700,
   },
   {
-    id: '5', name: 'Baby & Beyond Store', address: '654 Dundas St W, Toronto, ON',
+    id: '5', name: 'Baby & Beyond Sudbury', address: '1349 Paris St, Sudbury, ON',
     category: 'supplies', rating: 4.3, reviewCount: 312, distance: '1.9 km',
-    isOpen: true, phone: '+1-416-555-0105', description: 'Baby formula, diapers, toys, and everything else',
-    latitude: 43.6530, longitude: -79.4040,
+    isOpen: true, phone: '+1-705-555-0105', description: 'Baby formula, diapers, toys, and everything else',
+    latitude: 46.4830, longitude: -80.9870,
   },
   {
-    id: '6', name: 'Bright Minds Learning Centre', address: '111 Spadina Ave, Toronto, ON',
+    id: '6', name: 'Bright Minds Learning Centre', address: '55 Larch St, Sudbury, ON',
     category: 'education', rating: 4.6, reviewCount: 87, distance: '2.7 km',
-    isOpen: true, phone: '+1-416-555-0106', description: 'Tutoring and enrichment programs for K-12',
-    latitude: 43.6486, longitude: -79.3968,
+    isOpen: true, phone: '+1-705-555-0106', description: 'Tutoring and enrichment programs for K-12',
+    latitude: 46.4910, longitude: -81.0010,
   },
   {
-    id: '7', name: 'Family Kitchen Restaurant', address: '222 King St W, Toronto, ON',
+    id: '7', name: 'Respect Is Burning Kitchen', address: '82 Durham St, Sudbury, ON',
     category: 'food', rating: 4.4, reviewCount: 445, distance: '0.5 km',
-    isOpen: true, phone: '+1-416-555-0107', description: 'Kid-friendly restaurant with play area',
-    latitude: 43.6469, longitude: -79.3908,
+    isOpen: true, phone: '+1-705-555-0107', description: 'Kid-friendly restaurant with play area',
+    latitude: 46.4905, longitude: -81.0030,
   },
   {
-    id: '8', name: 'SickKids Urgent Care', address: '555 University Ave, Toronto, ON',
+    id: '8', name: 'Health Sciences North - Pediatric ER', address: '41 Ramsey Lake Rd, Sudbury, ON',
     category: 'emergency', rating: 4.9, reviewCount: 1024, distance: '4.2 km',
-    isOpen: true, phone: '+1-416-555-0108', description: 'Pediatric emergency and urgent care services',
-    latitude: 43.6577, longitude: -79.3889,
+    isOpen: true, phone: '+1-705-555-0108', description: 'Pediatric emergency and urgent care services',
+    latitude: 46.4700, longitude: -80.9750,
   },
 ];
 
@@ -158,7 +158,7 @@ export function NeedlePage() {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [-79.3932, 43.6532], // Toronto
+      center: [-81.0000, 46.4900], // Sudbury
       zoom: 13,
     });
 
