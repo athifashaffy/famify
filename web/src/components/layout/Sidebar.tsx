@@ -1,11 +1,12 @@
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, MapPin, Bell, User } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, MapPin, Bell, User, Users } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { usePanel } from '../../context/PanelContext';
 import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { to: '/child-hub', icon: Users, label: 'Child Hub' },
   { to: '/planner', icon: CalendarDays, label: 'Planner' },
   { to: '/needle', icon: MapPin, label: 'Needle' },
 ];

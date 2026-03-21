@@ -212,6 +212,72 @@ export interface SavedPlace {
   created_at: string;
 }
 
+// Child Hub types
+export interface EmergencyContact {
+  name: string;
+  relation: string;
+  phone: string;
+  is_primary: boolean;
+}
+
+export interface ChildHealthInfo {
+  id: string;
+  child_id: string;
+  medications: string[];
+  dietary_restrictions: string[];
+  pediatrician: string | null;
+  immunization_status: string | null;
+  emergency_contacts: EmergencyContact[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChildRoutineInfo {
+  id: string;
+  child_id: string;
+  sleep_schedule: Record<string, any>;
+  feeding_schedule: Record<string, any>;
+  comfort_methods: string[];
+  triggers: string[];
+  special_instructions: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ChildDocument {
+  id: string;
+  child_id: string;
+  family_id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string | null;
+  uploaded_by: string | null;
+  created_at: string;
+}
+
+export interface ChildSecureShare {
+  id: string;
+  child_id: string;
+  family_id: string;
+  created_by: string | null;
+  access_code: string;
+  share_token: string;
+  expires_at: string;
+  max_views: number;
+  current_views: number;
+  is_revoked: boolean;
+  watermark_note: string | null;
+  created_at: string;
+}
+
+export interface ChildShareAccessLog {
+  id: string;
+  share_id: string;
+  accessed_at: string;
+  ip_info: string | null;
+  user_agent: string | null;
+}
+
 // Extended types with joined data
 export interface PostWithAuthor extends Post {
   author?: Profile;

@@ -11,6 +11,9 @@ import { FamilySetupPage } from './pages/FamilySetupPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { PlannerPage } from './pages/PlannerPage';
 import { NeedlePage } from './pages/NeedlePage';
+import { ChildHubPage } from './pages/ChildHubPage';
+import { ChildDetailPage } from './pages/ChildDetailPage';
+import { SecureSharePage } from './pages/SecureSharePage';
 
 const queryClient = new QueryClient();
 
@@ -24,6 +27,7 @@ function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/share/:token" element={<SecureSharePage />} />
               <Route
                 path="/family-setup"
                 element={
@@ -40,6 +44,8 @@ function App() {
                 }
               >
                 <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/child-hub" element={<ChildHubPage />} />
+                <Route path="/child-hub/:childId" element={<ChildDetailPage />} />
                 <Route path="/planner" element={<PlannerPage />} />
                 <Route path="/needle" element={<NeedlePage />} />
               </Route>
