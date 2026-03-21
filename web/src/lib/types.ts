@@ -40,6 +40,7 @@ export interface ChildProfile {
   parent_id: string | null;
   family_id: string | null;
   name: string | null;
+  gender: string | null;
   date_of_birth: string | null;
   allergies: string[];
   medical_notes: string | null;

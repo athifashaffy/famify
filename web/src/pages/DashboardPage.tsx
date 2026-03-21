@@ -9,13 +9,13 @@ import { supabase } from '../lib/supabase';
 import { Event, Task, MealPlan, Reminder, Note, Notification, ChildProfile } from '../lib/types';
 import { CATEGORY_COLORS, MEAL_COLORS } from '../lib/constants';
 import { format, differenceInYears, differenceInMonths } from 'date-fns';
-import { useNavigate } from 'react-router-dom';
 import { Plus, X, Bell, Baby } from 'lucide-react';
+import { usePanel } from '../context/PanelContext';
 
 export function DashboardPage() {
   const { profile, user } = useAuth();
   const { family, members } = useFamily();
-  const navigate = useNavigate();
+  const { togglePanel } = usePanel();
   const [events, setEvents] = useState<Event[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [meals, setMeals] = useState<MealPlan[]>([]);
@@ -194,7 +194,7 @@ export function DashboardPage() {
               <Card
                 key={child.id}
                 className="min-w-[160px] p-4 cursor-pointer hover:shadow-md transition-shadow bg-gradient-to-br from-white to-sky-50 border-sky-100"
-                onClick={() => navigate('/profile')}
+                onClick={() => togglePanel('profile')}
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-sky-100 flex items-center justify-center text-sky-600">
@@ -280,7 +280,7 @@ export function DashboardPage() {
               ))
             )}
             <button
-              onClick={() => navigate('/notifications')}
+              onClick={() => togglePanel('notifications')}
               className="text-xs text-emerald-600 hover:text-emerald-700 font-medium mt-1"
             >
               View all notifications →
