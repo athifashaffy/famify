@@ -159,33 +159,6 @@ export interface Note {
   updated_at: string;
 }
 
-export type PostVisibility = 'family' | 'public';
-
-export interface Post {
-  id: string;
-  family_id: string;
-  author_id: string | null;
-  content: string | null;
-  media_urls: string[];
-  visibility: PostVisibility;
-  created_at: string;
-}
-
-export interface PostLike {
-  id: string;
-  post_id: string;
-  user_id: string | null;
-  created_at: string;
-}
-
-export interface PostComment {
-  id: string;
-  post_id: string;
-  user_id: string | null;
-  content: string;
-  created_at: string;
-}
-
 export interface Notification {
   id: string;
   user_id: string | null;
@@ -279,15 +252,6 @@ export interface ChildShareAccessLog {
 }
 
 // Extended types with joined data
-export interface PostWithAuthor extends Post {
-  author?: Profile;
-  likes?: PostLike[];
-  comments?: PostComment[];
-  likeCount?: number;
-  commentCount?: number;
-  isLikedByCurrentUser?: boolean;
-}
-
 export interface TaskWithAssignee extends Task {
   assignee?: Profile;
 }

@@ -4,7 +4,7 @@ import { ChildRoutineInfo, Routine } from '../../lib/types';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
-import { Save, Moon, Sun, Coffee } from 'lucide-react';
+import { Save, Moon, Sun, Coffee, FileText } from 'lucide-react';
 
 interface Props {
   childId: string;
@@ -102,8 +102,8 @@ export function RoutineTab({ childId, familyId }: Props) {
             <div className="space-y-1 text-sm">
               <p><span className="text-slate-500">Bedtime:</span> {routineInfo?.sleep_schedule?.bedtime || 'Not set'}</p>
               <p><span className="text-slate-500">Wake time:</span> {routineInfo?.sleep_schedule?.wake_time || 'Not set'}</p>
-              {routineInfo?.sleep_schedule?.nap_times?.length > 0 && (
-                <p><span className="text-slate-500">Naps:</span> {routineInfo.sleep_schedule.nap_times.join(', ')}</p>
+              {(routineInfo?.sleep_schedule?.nap_times?.length ?? 0) > 0 && (
+                <p><span className="text-slate-500">Naps:</span> {routineInfo!.sleep_schedule.nap_times.join(', ')}</p>
               )}
             </div>
           </Card>
@@ -112,9 +112,9 @@ export function RoutineTab({ childId, familyId }: Props) {
             <h3 className="font-semibold text-slate-900 mb-3 flex items-center gap-2">
               <Coffee size={16} className="text-amber-500" /> Feeding Schedule
             </h3>
-            {routineInfo?.feeding_schedule?.meal_times?.length > 0 ? (
+            {(routineInfo?.feeding_schedule?.meal_times?.length ?? 0) > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {routineInfo.feeding_schedule.meal_times.map((t: string, i: number) => (
+                {routineInfo!.feeding_schedule.meal_times.map((t: string, i: number) => (
                   <span key={i} className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-sm">{t}</span>
                 ))}
               </div>
@@ -123,9 +123,9 @@ export function RoutineTab({ childId, familyId }: Props) {
 
           <Card className="p-5">
             <h3 className="font-semibold text-slate-900 mb-3">Comfort Methods</h3>
-            {routineInfo?.comfort_methods?.length > 0 ? (
+            {(routineInfo?.comfort_methods?.length ?? 0) > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {routineInfo.comfort_methods.map((m, i) => (
+                {routineInfo!.comfort_methods.map((m, i) => (
                   <span key={i} className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-sm">{m}</span>
                 ))}
               </div>
@@ -134,9 +134,9 @@ export function RoutineTab({ childId, familyId }: Props) {
 
           <Card className="p-5">
             <h3 className="font-semibold text-slate-900 mb-3">Triggers</h3>
-            {routineInfo?.triggers?.length > 0 ? (
+            {(routineInfo?.triggers?.length ?? 0) > 0 ? (
               <div className="flex flex-wrap gap-2">
-                {routineInfo.triggers.map((t, i) => (
+                {routineInfo!.triggers.map((t, i) => (
                   <span key={i} className="px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-sm">{t}</span>
                 ))}
               </div>
@@ -144,9 +144,11 @@ export function RoutineTab({ childId, familyId }: Props) {
           </Card>
 
           {routineInfo?.special_instructions && (
-            <Card className="p-5 md:col-span-2">
-              <h3 className="font-semibold text-slate-900 mb-2">Special Instructions</h3>
-              <p className="text-sm text-slate-600">{routineInfo.special_instructions}</p>
+            <Card className="p-5 md:col-span-2 border-emerald-100 bg-emerald-50/30">
+              <h3 className="font-semibold text-emerald-900 mb-2 flex items-center gap-2">
+                <FileText size={16} className="text-emerald-500" /> Daily Schedule & Notes
+              </h3>
+              <p className="text-sm text-slate-700 whitespace-pre-wrap">{routineInfo.special_instructions}</p>
             </Card>
           )}
         </div>
@@ -203,9 +205,11 @@ export function RoutineTab({ childId, familyId }: Props) {
           <label className="block text-sm font-medium text-slate-700 mb-1">Triggers (comma separated)</label>
           <Input value={form.triggers} onChange={(e) => setForm({ ...form, triggers: e.target.value })} placeholder="e.g., Loud noises, Dark rooms" />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-slate-700 mb-1">Special Instructions</label>
-          <textarea className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm" value={form.special_instructions} onChange={(e) => setForm({ ...form, special_instructions: e.target.value })} rows={3} placeholder="Any special care instructions..." />
+        <div className="md:col-span-2 mt-2">
+          <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-1.5">
+            <FileText size={14} className="text-emerald-500" /> Daily Schedule & Notes
+          </label>
+          <textarea className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none" value={form.special_instructions} onChange={(e) => setForm({ ...form, special_instructions: e.target.value })} rows={6} placeholder="Add detailed daily schedule, nap times, or any specific notes for caregivers..." />
         </div>
         <div className="flex gap-2">
           <Button onClick={handleSave} disabled={saving} className="bg-emerald-500 hover:bg-emerald-600">

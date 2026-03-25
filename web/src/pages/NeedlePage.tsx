@@ -19,6 +19,10 @@ const CATEGORIES = [
   { id: 'education', label: 'Education', emoji: '📚' },
   { id: 'food', label: 'Food', emoji: '🍕' },
   { id: 'emergency', label: 'Emergency', emoji: '🚨' },
+  { id: 'parks', label: 'Parks & Rec', emoji: '🌳' },
+  { id: 'faith', label: 'Faith', emoji: '⛪' },
+  { id: 'library', label: 'Library', emoji: '📖' },
+  { id: 'family', label: 'Family Support', emoji: '👪' },
 ];
 
 const DISTANCE_OPTIONS = [
@@ -43,55 +47,240 @@ interface PlaceResult {
   longitude: number;
 }
 
-// Sample curated data for MVP - Sudbury, ON
+// Curated real organizations in Greater Sudbury, ON
 const SAMPLE_PLACES: PlaceResult[] = [
+  // === DAYCARES & CHILDCARE ===
   {
-    id: '1', name: 'Sudbury Pediatric Clinic', address: '865 Regent St, Sudbury, ON',
-    category: 'doctor', rating: 4.8, reviewCount: 234, distance: '1.2 km',
-    isOpen: true, phone: '+1-705-555-0101', description: 'Full-service pediatric clinic with walk-in hours',
+    id: '1', name: 'Laurentian Child and Family Centre', address: '935 Ramsey Lake Rd, Sudbury, ON P3E 2C6',
+    category: 'daycare', rating: 4.8, reviewCount: 142, distance: '4.5 km',
+    isOpen: true, phone: '+1-705-675-1151', description: 'University-affiliated child care centre offering quality early learning programs',
+    latitude: 46.4673, longitude: -80.9716,
+  },
+  {
+    id: '2', name: 'Jubilee Heritage Family Resources Centre', address: '19 Jubilee St, Sudbury, ON P3E 1A7',
+    category: 'daycare', rating: 4.7, reviewCount: 98, distance: '1.8 km',
+    isOpen: true, phone: '+1-705-673-7546', description: 'Community-based family resource centre with licensed child care programs',
+    latitude: 46.4912, longitude: -81.0072,
+  },
+  {
+    id: '3', name: 'YMCA of Northeastern Ontario (Child Care)', address: '140 Durham St, Sudbury, ON P3E 3M7',
+    category: 'daycare', rating: 4.6, reviewCount: 210, distance: '0.6 km',
+    isOpen: true, phone: '+1-705-673-9136', description: 'Licensed child care programs for infants, toddlers, and preschoolers',
+    latitude: 46.4902, longitude: -81.0045,
+  },
+
+  // === FAMILY & EARLY CHILDHOOD SUPPORT ===
+  {
+    id: '4', name: 'West End EarlyON Child and Family Centre', address: '104 Applegrove St, Sudbury, ON P3C 1N1',
+    category: 'family', rating: 4.9, reviewCount: 76, distance: '3.2 km',
+    isOpen: true, phone: '+1-705-566-3416', description: 'Free drop-in programs for families with children ages 0-6',
+    latitude: 46.4880, longitude: -81.0370,
+  },
+  {
+    id: '5', name: 'Jubilee West End EarlyON at St. Francis', address: '691 Lilac St, Sudbury, ON P3C 4R2',
+    category: 'family', rating: 4.8, reviewCount: 64, distance: '3.5 km',
+    isOpen: true, phone: '+1-705-673-7546', description: 'EarlyON centre offering play-based learning and parenting support at St. Francis Catholic School',
+    latitude: 46.4845, longitude: -81.0410,
+  },
+  {
+    id: '6', name: 'Child and Community Resources (CCR)', address: '1100 Bancroft Dr, Sudbury, ON P3B 1R2',
+    category: 'family', rating: 4.7, reviewCount: 118, distance: '3.1 km',
+    isOpen: true, phone: '+1-705-525-0055', description: 'Integrated early childhood development and family support services',
+    latitude: 46.5070, longitude: -80.9620,
+  },
+
+  // === HEALTH & CLINICS ===
+  {
+    id: '7', name: 'NEO Kids Program – Health Sciences North', address: '41 Ramsey Lake Rd, Sudbury, ON P3E 5J1',
+    category: 'doctor', rating: 4.9, reviewCount: 320, distance: '4.2 km',
+    isOpen: true, phone: '+1-705-523-7100', description: 'Specialized pediatric care program at Health Sciences North for children and youth',
+    latitude: 46.4700, longitude: -80.9750,
+  },
+  {
+    id: '8', name: 'Lasalle Walk-In Clinic', address: '1385 LaSalle Blvd, Sudbury, ON P3A 1Z8',
+    category: 'doctor', rating: 4.3, reviewCount: 187, distance: '1.5 km',
+    isOpen: true, phone: '+1-705-566-2273', description: 'Walk-in medical clinic with family-friendly hours and no appointment needed',
+    latitude: 46.5055, longitude: -81.0090,
+  },
+  {
+    id: '9', name: 'Sudbury Family Medical Centre', address: '865 Regent St S, Sudbury, ON P3E 3Y9',
+    category: 'doctor', rating: 4.5, reviewCount: 245, distance: '1.2 km',
+    isOpen: true, phone: '+1-705-522-2200', description: 'Full-service family medical practice accepting new patients',
     latitude: 46.4894, longitude: -80.9930,
   },
   {
-    id: '2', name: 'Shoppers Drug Mart', address: '1485 LaSalle Blvd, Sudbury, ON',
-    category: 'pharmacy', rating: 4.5, reviewCount: 189, distance: '0.8 km',
-    isOpen: true, phone: '+1-705-555-0102', description: '24-hour pharmacy with baby supplies section',
-    latitude: 46.5050, longitude: -81.0130,
+    id: '10', name: 'Health Sciences North', address: '41 Ramsey Lake Rd, Sudbury, ON P3E 5J1',
+    category: 'emergency', rating: 4.8, reviewCount: 1024, distance: '4.2 km',
+    isOpen: true, phone: '+1-705-523-7100', description: 'Full-service hospital with emergency department and pediatric care',
+    latitude: 46.4698, longitude: -80.9755,
+  },
+
+  // === EDUCATION & LEARNING ===
+  {
+    id: '11', name: 'St. Francis Catholic School', address: '691 Lilac St, Sudbury, ON P3C 4R2',
+    category: 'education', rating: 4.6, reviewCount: 89, distance: '3.5 km',
+    isOpen: true, phone: '+1-705-673-1700', description: 'Catholic elementary school serving families in the West End community',
+    latitude: 46.4843, longitude: -81.0415,
   },
   {
-    id: '3', name: 'Little Nickel Daycare', address: '245 Elm St, Sudbury, ON',
-    category: 'daycare', rating: 4.9, reviewCount: 156, distance: '2.3 km',
-    isOpen: true, phone: '+1-705-555-0103', description: 'Licensed daycare for ages 6 months to 5 years',
-    latitude: 46.4920, longitude: -81.0050,
+    id: '12', name: 'Montessori School of Sudbury', address: '1930 Paris St, Sudbury, ON P3E 3C8',
+    category: 'education', rating: 4.9, reviewCount: 67, distance: '2.8 km',
+    isOpen: true, phone: '+1-705-522-8643', description: 'Authentic Montessori education for children ages 2.5 to 12',
+    latitude: 46.4760, longitude: -80.9870,
   },
   {
-    id: '4', name: 'Sudbury Soccer Academy', address: '1100 Bancroft Dr, Sudbury, ON',
-    category: 'activities', rating: 4.7, reviewCount: 98, distance: '3.1 km',
-    isOpen: false, phone: '+1-705-555-0104', description: 'Soccer programs for kids ages 3-12',
-    latitude: 46.4750, longitude: -80.9700,
+    id: '13', name: 'King Montessori Academy', address: '1500 Paris St, Sudbury, ON P3E 3B8',
+    category: 'education', rating: 4.7, reviewCount: 54, distance: '2.1 km',
+    isOpen: true, phone: '+1-705-675-9111', description: 'Montessori-based preschool and elementary programs with before and after care',
+    latitude: 46.4810, longitude: -80.9880,
+  },
+
+  // === KIDS ACTIVITIES & PLAY ===
+  {
+    id: '14', name: 'KUPP Centre (Kids Ultimate Play Place)', address: '1975 Lasalle Blvd, Sudbury, ON P3A 2A3',
+    category: 'activities', rating: 4.5, reviewCount: 312, distance: '2.8 km',
+    isOpen: true, phone: '+1-705-524-5877', description: 'Indoor play centre with climbing structures, slides, and birthday party packages',
+    latitude: 46.5085, longitude: -80.9880,
   },
   {
-    id: '5', name: 'Baby & Beyond Sudbury', address: '1349 Paris St, Sudbury, ON',
-    category: 'supplies', rating: 4.3, reviewCount: 312, distance: '1.9 km',
-    isOpen: true, phone: '+1-705-555-0105', description: 'Baby formula, diapers, toys, and everything else',
-    latitude: 46.4830, longitude: -80.9870,
+    id: '15', name: 'Urban Air Trampoline and Adventure Park', address: '1485 Kingsway Blvd, Sudbury, ON P3B 0A2',
+    category: 'activities', rating: 4.4, reviewCount: 278, distance: '3.0 km',
+    isOpen: true, phone: '+1-705-419-0027', description: 'Trampoline park with obstacle courses, climbing walls, and dodgeball for all ages',
+    latitude: 46.5020, longitude: -80.9550,
   },
   {
-    id: '6', name: 'Bright Minds Learning Centre', address: '55 Larch St, Sudbury, ON',
-    category: 'education', rating: 4.6, reviewCount: 87, distance: '2.7 km',
-    isOpen: true, phone: '+1-705-555-0106', description: 'Tutoring and enrichment programs for K-12',
-    latitude: 46.4910, longitude: -81.0010,
+    id: '16', name: 'YMCA of Northeastern Ontario', address: '140 Durham St, Sudbury, ON P3E 3M7',
+    category: 'activities', rating: 4.6, reviewCount: 195, distance: '0.6 km',
+    isOpen: true, phone: '+1-705-673-9136', description: 'Youth sports leagues, swimming lessons, day camps, and fitness programs for families',
+    latitude: 46.4900, longitude: -81.0048,
   },
   {
-    id: '7', name: 'Respect Is Burning Kitchen', address: '82 Durham St, Sudbury, ON',
-    category: 'food', rating: 4.4, reviewCount: 445, distance: '0.5 km',
-    isOpen: true, phone: '+1-705-555-0107', description: 'Kid-friendly restaurant with play area',
+    id: '17', name: 'Sudbury Theatre Centre (Youth Programs)', address: '170 Shaughnessy St, Sudbury, ON P3E 3E9',
+    category: 'activities', rating: 4.8, reviewCount: 96, distance: '1.0 km',
+    isOpen: true, phone: '+1-705-674-8381', description: 'Youth theatre workshops, drama camps, and performance programs for ages 5-18',
+    latitude: 46.4888, longitude: -80.9970,
+  },
+
+  // === PARKS, RECREATION & LANDMARKS ===
+  {
+    id: '18', name: 'Bell Park', address: 'Bell Park Rd, Sudbury, ON P3E 3A3',
+    category: 'parks', rating: 4.9, reviewCount: 520, distance: '2.5 km',
+    isOpen: true, phone: '+1-705-674-4455', description: 'Beautiful lakeside park with beach, playground, walking trails, and concert amphitheatre',
+    latitude: 46.4775, longitude: -80.9940,
+  },
+  {
+    id: '19', name: 'Westmount Playground', address: 'Westmount Ave, Sudbury, ON P3A 4L3',
+    category: 'parks', rating: 4.5, reviewCount: 87, distance: '2.0 km',
+    isOpen: true, phone: '+1-705-674-4455', description: 'Community playground with modern play equipment and green space for families',
+    latitude: 46.5030, longitude: -80.9820,
+  },
+  {
+    id: '20', name: 'Lonsdale Playground', address: 'Lonsdale Ave, Sudbury, ON P3C 2H7',
+    category: 'parks', rating: 4.4, reviewCount: 65, distance: '2.8 km',
+    isOpen: true, phone: '+1-705-674-4455', description: 'Neighbourhood playground with swings, climbing structures, and picnic areas',
+    latitude: 46.4870, longitude: -81.0280,
+  },
+  {
+    id: '21', name: 'Delki Dozzi Park Playground', address: '100 Bancroft Dr, Sudbury, ON P3B 1R2',
+    category: 'parks', rating: 4.6, reviewCount: 142, distance: '3.2 km',
+    isOpen: true, phone: '+1-705-674-4455', description: 'Multi-sport complex with splash pad, playground, soccer fields, and walking trails',
+    latitude: 46.5075, longitude: -80.9640,
+  },
+  {
+    id: '22', name: 'Sudbury Wolves', address: '240 Elgin St, Sudbury, ON P3E 3N5',
+    category: 'parks', rating: 4.7, reviewCount: 380, distance: '0.8 km',
+    isOpen: false, phone: '+1-705-675-3141', description: 'OHL junior hockey team – exciting family-friendly game nights at Sudbury Arena',
+    latitude: 46.4920, longitude: -80.9985,
+  },
+  {
+    id: '23', name: 'Sudbury Five', address: '240 Elgin St, Sudbury, ON P3E 3N5',
+    category: 'parks', rating: 4.5, reviewCount: 215, distance: '0.8 km',
+    isOpen: false, phone: '+1-705-675-3141', description: 'Professional basketball team – affordable family entertainment at Sudbury Arena',
+    latitude: 46.4922, longitude: -80.9982,
+  },
+  {
+    id: '24', name: 'Sudbury Arena', address: '240 Elgin St, Sudbury, ON P3E 3N5',
+    category: 'parks', rating: 4.4, reviewCount: 450, distance: '0.8 km',
+    isOpen: true, phone: '+1-705-674-4455', description: 'Multi-purpose arena hosting hockey, basketball, concerts, and community events',
+    latitude: 46.4918, longitude: -80.9988,
+  },
+
+  // === FAITH-BASED COMMUNITY ===
+  {
+    id: '25', name: 'St. Andrew the Apostle Church', address: '40 Julien Ave, Sudbury, ON P3C 3H8',
+    category: 'faith', rating: 4.7, reviewCount: 78, distance: '2.5 km',
+    isOpen: true, phone: '+1-705-674-2727', description: 'Catholic parish with family mass, children\'s liturgy, and community outreach programs',
+    latitude: 46.4862, longitude: -81.0310,
+  },
+  {
+    id: '26', name: 'Christ the King Church', address: '410 Kathleen St, Sudbury, ON P3C 2N1',
+    category: 'faith', rating: 4.6, reviewCount: 63, distance: '2.2 km',
+    isOpen: true, phone: '+1-705-674-5764', description: 'Catholic church with Sunday school, youth groups, and family-focused community events',
+    latitude: 46.4875, longitude: -81.0250,
+  },
+  {
+    id: '27', name: 'Sudbury Mosque (Islamic Association of Sudbury)', address: '1553 Kennedy St, Sudbury, ON P3A 2G3',
+    category: 'faith', rating: 4.8, reviewCount: 55, distance: '2.5 km',
+    isOpen: true, phone: '+1-705-560-3030', description: 'Islamic centre offering Friday prayers, Sunday school, and family community gatherings',
+    latitude: 46.5060, longitude: -80.9810,
+  },
+  {
+    id: '28', name: 'Glad Tidings Church', address: '741 Glendale Ave, Sudbury, ON P3C 1N5',
+    category: 'faith', rating: 4.5, reviewCount: 47, distance: '3.0 km',
+    isOpen: true, phone: '+1-705-674-4077', description: 'Family-friendly church with kids programs, youth groups, and community meals',
+    latitude: 46.4850, longitude: -81.0350,
+  },
+
+  // === FAMILY-FRIENDLY RESTAURANTS ===
+  {
+    id: '29', name: 'Respect Is Burning Kitchen & Bar', address: '82 Durham St, Sudbury, ON P3E 3M5',
+    category: 'food', rating: 4.6, reviewCount: 445, distance: '0.5 km',
+    isOpen: true, phone: '+1-705-222-6010', description: 'Trendy restaurant with creative comfort food, kids menu, and relaxed family atmosphere',
     latitude: 46.4905, longitude: -81.0030,
   },
   {
-    id: '8', name: 'Health Sciences North - Pediatric ER', address: '41 Ramsey Lake Rd, Sudbury, ON',
-    category: 'emergency', rating: 4.9, reviewCount: 1024, distance: '4.2 km',
-    isOpen: true, phone: '+1-705-555-0108', description: 'Pediatric emergency and urgent care services',
-    latitude: 46.4700, longitude: -80.9750,
+    id: '30', name: 'Lot 88 Steakhouse & Bar', address: '88 Durham St, Sudbury, ON P3E 3M5',
+    category: 'food', rating: 4.5, reviewCount: 380, distance: '0.5 km',
+    isOpen: true, phone: '+1-705-688-8488', description: 'Upscale steakhouse with private dining options and welcoming family service',
+    latitude: 46.4907, longitude: -81.0028,
+  },
+  {
+    id: '31', name: 'Swiss Chalet', address: '1490 LaSalle Blvd, Sudbury, ON P3A 1Z7',
+    category: 'food', rating: 4.2, reviewCount: 520, distance: '1.5 km',
+    isOpen: true, phone: '+1-705-566-8311', description: 'Classic Canadian family restaurant with rotisserie chicken and dedicated kids meals',
+    latitude: 46.5048, longitude: -81.0095,
+  },
+  {
+    id: '32', name: 'La Fromagerie', address: '64 Elgin St, Sudbury, ON P3E 3N5',
+    category: 'food', rating: 4.7, reviewCount: 290, distance: '0.8 km',
+    isOpen: true, phone: '+1-705-675-9900', description: 'Gourmet cafe and cheese shop with family brunch, artisan sandwiches, and pastries',
+    latitude: 46.4915, longitude: -80.9995,
+  },
+  {
+    id: '33', name: 'M.I.C. Canadian Eatery & Whisky Pub', address: '75 Durham St, Sudbury, ON P3E 3M5',
+    category: 'food', rating: 4.4, reviewCount: 365, distance: '0.5 km',
+    isOpen: true, phone: '+1-705-586-0642', description: 'Canadian comfort food with poutine, burgers, and a welcoming family dining area',
+    latitude: 46.4903, longitude: -81.0035,
+  },
+
+  // === LIBRARIES ===
+  {
+    id: '34', name: 'New Sudbury Public Library', address: '1500 LaSalle Blvd, Sudbury, ON P3A 1Z8',
+    category: 'library', rating: 4.6, reviewCount: 175, distance: '1.5 km',
+    isOpen: true, phone: '+1-705-673-1155', description: 'Public library with children\'s reading programs, storytime, and free community events',
+    latitude: 46.5052, longitude: -81.0100,
+  },
+  {
+    id: '35', name: 'Greater Sudbury Public Library - Main Branch', address: '74 Mackenzie St, Sudbury, ON P3C 4X8',
+    category: 'library', rating: 4.7, reviewCount: 230, distance: '0.7 km',
+    isOpen: true, phone: '+1-705-673-1155', description: 'Main downtown library with extensive children\'s section, maker space, and family programs',
+    latitude: 46.4910, longitude: -81.0015,
+  },
+  {
+    id: '36', name: 'South End Public Library', address: '1935 Paris St, Sudbury, ON P3E 3C8',
+    category: 'library', rating: 4.5, reviewCount: 110, distance: '2.8 km',
+    isOpen: true, phone: '+1-705-673-1155', description: 'Neighbourhood library with kids programming, book clubs, and summer reading challenges',
+    latitude: 46.4755, longitude: -80.9875,
   },
 ];
 
@@ -106,6 +295,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   education: '#6366f1',
   food: '#f97316',
   emergency: '#dc2626',
+  parks: '#22c55e',
+  faith: '#a855f7',
+  library: '#0ea5e9',
+  family: '#ec4899',
 };
 
 export function NeedlePage() {

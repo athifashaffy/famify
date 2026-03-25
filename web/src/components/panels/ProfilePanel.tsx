@@ -27,7 +27,7 @@ interface MemberProfile {
 }
 
 export function ProfilePanel() {
-  const { user, profile, logout } = useAuth();
+  const { user, logout } = useAuth();
   const { family, members } = useFamily();
   const navigate = useNavigate();
 

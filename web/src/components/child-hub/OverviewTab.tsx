@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { ChildProfile, ChildHealthInfo } from '../../lib/types';
 import { Card } from '../ui/card';
-import { AlertTriangle, Phone, Heart, Utensils, Sparkles } from 'lucide-react';
+import { AlertTriangle, Phone, Utensils, Sparkles } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface Props {
