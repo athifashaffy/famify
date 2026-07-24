@@ -1,10 +1,11 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from './context/AuthContext';
 import { FamilyProvider } from './context/FamilyContext';
 import { PanelProvider } from './context/PanelContext';
 import { ProtectedRoute } from './components/shared/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
+import { LandingPage } from './pages/LandingPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { FamilySetupPage } from './pages/FamilySetupPage';
@@ -14,6 +15,7 @@ import { NeedlePage } from './pages/NeedlePage';
 import { ChildHubPage } from './pages/ChildHubPage';
 import { ChildDetailPage } from './pages/ChildDetailPage';
 import { SecureSharePage } from './pages/SecureSharePage';
+import { ProfilePage } from './pages/ProfilePage';
 
 const queryClient = new QueryClient();
 
@@ -48,8 +50,9 @@ function App() {
                 <Route path="/child-hub/:childId" element={<ChildDetailPage />} />
                 <Route path="/planner" element={<PlannerPage />} />
                 <Route path="/needle" element={<NeedlePage />} />
+                <Route path="/profile" element={<ProfilePage />} />
               </Route>
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="/" element={<LandingPage />} />
             </Routes>
             </PanelProvider>
           </BrowserRouter>

@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Routing and Navigation', () => {
-  test('should redirect root path to dashboard (which redirects to login)', async ({ page }) => {
+  test('should show the landing page at the root path', async ({ page }) => {
     await page.goto('/');
-    // Since we're not authenticated, should redirect to login
-    await expect(page).toHaveURL('/login');
+    // Root now serves the public landing page for everyone
+    await expect(page).toHaveURL('/');
+    await expect(page.getByRole('heading', { level: 1 })).toContainText(/famify/i);
   });
 
   test('should access login page directly', async ({ page }) => {
@@ -21,7 +22,8 @@ test.describe('Routing and Navigation', () => {
 
   test('should show emerald gradient background on auth pages', async ({ page }) => {
     await page.goto('/login');
-    const container = page.locator('body > div').first();
+    // #root itself has no styles; the gradient lives on the page container inside it
+    const container = page.locator('.bg-gradient-to-br').first();
     const bgStyle = await container.evaluate((el) => {
       return window.getComputedStyle(el).backgroundImage;
     });

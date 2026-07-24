@@ -8,14 +8,15 @@ test.describe('Login Page', () => {
   test('should display Famify branding and title', async ({ page }) => {
     // Check for Famify title
     await expect(page.locator('h1').filter({ hasText: 'Famify' })).toBeVisible();
-    await expect(page.locator('h1').filter({ hasText: 'Famify' })).toHaveCSS('color', 'rgb(16, 185, 129)'); // emerald-600
+    await expect(page.locator('h1').filter({ hasText: 'Famify' })).toHaveCSS('color', 'rgb(5, 150, 105)'); // emerald-600
 
     // Check for tagline
     await expect(page.getByText('Manage your family, together')).toBeVisible();
   });
 
   test('should have emerald gradient background', async ({ page }) => {
-    const bgContainer = page.locator('body > div').first();
+    // #root has no styles of its own; the gradient is on the page container inside it
+    const bgContainer = page.locator('.bg-gradient-to-br').first();
     const bgStyle = await bgContainer.evaluate((el) => {
       const styles = window.getComputedStyle(el);
       return styles.background || styles.backgroundImage;
@@ -83,23 +84,20 @@ test.describe('Login Page', () => {
     await expect(page.getByLabel('Password')).toHaveValue('password123');
   });
 
-  test('should show loading state when Sign In is clicked', async ({ page }) => {
+  test('should show an error for invalid credentials', async ({ page }) => {
     await page.getByLabel('Email').fill('test@example.com');
-    await page.getByLabel('Password').fill('password123');
+    await page.getByLabel('Password').fill('wrong-password-123');
 
-    const signInButton = page.getByRole('button', { name: 'Sign In' });
-    await signInButton.click();
+    await page.getByRole('button', { name: 'Sign In' }).click();
 
-    // Button should show "Signing in..." text
-    await expect(signInButton).toBeDisabled();
+    // Supabase rejects the credentials and the error box appears
+    await expect(page.locator('.text-rose-600')).toBeVisible({ timeout: 15000 });
   });
 
-  test('Try Demo button should fill credentials', async ({ page }) => {
-    const demoButton = page.getByRole('button', { name: 'Try Demo' });
-    await demoButton.click();
+  test('Try Demo button signs in with the demo account', async ({ page }) => {
+    await page.getByRole('button', { name: 'Try Demo' }).click();
 
-    // Check that email is filled with demo credentials
-    await expect(page.getByLabel('Email')).toHaveValue('john@famify-demo.com');
-    await expect(page.getByLabel('Password')).toHaveValue('Demo123!');
+    // Demo login goes straight to the dashboard (no form fill step anymore)
+    await expect(page).toHaveURL('/dashboard', { timeout: 20000 });
   });
 });
