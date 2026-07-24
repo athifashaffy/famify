@@ -33,11 +33,9 @@ All of this is covered by automated browser tests (Playwright) — 29 checks pas
 
 ## Admin visibility & analytics
 
-There is currently **no in-app admin dashboard** — that was not in the MVP scope. What I can offer for the beta, in order of effort:
+Famify now has a **built-in Founder Dashboard**. Log in with your own account and an "Admin" item appears in the navigation. It shows total users, families, children, new sign-ups (7/30 days), weekly active users, and a full list of registered users with their family, sign-up date, and last sign-in — the registration/activity visibility you asked for. It is read-only and only accounts flagged as admin can see it (other users are automatically turned away). [Athif: flag George's account as admin after the migration — need George to confirm which email he registered with.]
 
-1. **Now:** read-only access to the Supabase dashboard so you can see registrations, users, and activity directly. [Athif: invite George's email as a read-only member.]
-2. **Now:** Vercel Analytics for page views/visitors on the web app. [Athif: enable + invite.]
-3. **Later (needs a funded scope):** a proper founder dashboard with retention/engagement metrics inside the app.
+For deeper operations (deleting users, resending emails), the Supabase dashboard remains the tool; I can add you there as a read-only member if needed.
 
 ## Platforms & accounts
 
@@ -45,6 +43,15 @@ There is currently **no in-app admin dashboard** — that was not in the MVP sco
 - Hosting: Vercel (web app) + famify.co domain
 - Backend/auth/database: Supabase
 - Apple / Google developer accounts: not yet created — needed only when mobile distribution starts. These should be created under Famify's ownership so they belong to the company from day one.
+
+## Email delivery — important for the beta
+
+I tested the sign-up email flow end to end. Registration requires email confirmation, and the confirmation email sends correctly — but our current email service is the built-in development one, which is limited to **roughly 2 emails per hour**. With 15–30 families registering in one evening, most confirmation emails would never arrive and those families could not log in. Before the beta starts we must do one of:
+
+1. **Connect a proper email service** (e.g. Resend or Brevo — both have free tiers that cover a beta) so confirmation and password-reset emails are reliable, or
+2. **Temporarily disable email confirmation** for the beta so families can sign up and use the app immediately.
+
+[Athif: decision + 30 min of setup either way.] I also fixed the sign-up screen so users are clearly told to check their email after registering.
 
 ## Outstanding changes & timeline
 
