@@ -81,10 +81,6 @@ REVOKE EXECUTE ON FUNCTION public.admin_list_users(INT, INT) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.admin_get_stats() TO authenticated;
 GRANT EXECUTE ON FUNCTION public.admin_list_users(INT, INT) TO authenticated;
 
--- Beta test admin account (created 2026-07-24 for verification)
+-- Founder admin access for George (account created 2026-07-24, pre-confirmed)
 UPDATE profiles SET is_admin = TRUE
-WHERE id IN (SELECT id FROM auth.users WHERE email = 'claude-max+famify-beta-test@flemmings-iceland.de');
-
--- To grant George founder access, run with his account's email:
--- UPDATE profiles SET is_admin = TRUE
--- WHERE id IN (SELECT id FROM auth.users WHERE email = 'george@example.com');
+WHERE id IN (SELECT id FROM auth.users WHERE email = 'georgeobiora51@yahoo.com');

@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 import { DEMO_CREDENTIALS } from '../src/lib/constants';
 
-const ADMIN_EMAIL = 'claude-max+famify-beta-test@flemmings-iceland.de';
-const ADMIN_PASSWORD = 'FamifyBeta2026!';
+// Provide real admin credentials via env when running the gated test below
+const ADMIN_EMAIL = process.env.ADMIN_TEST_EMAIL ?? '';
+const ADMIN_PASSWORD = process.env.ADMIN_TEST_PASSWORD ?? '';
 
 test.describe('Admin panel', () => {
   test('non-admin user is redirected away from /admin', async ({ page }) => {
@@ -16,11 +17,10 @@ test.describe('Admin panel', () => {
     await expect(page).toHaveURL('/dashboard', { timeout: 15000 });
   });
 
-  // Requires migration 017_admin_panel.sql applied to the live database
-  // (it flags the beta test account as admin). Enable with:
-  //   ADMIN_MIGRATION_APPLIED=1 npx playwright test tests/admin.spec.ts
+  // Requires migration 017_admin_panel.sql applied to the live database. Enable with:
+  //   ADMIN_TEST_EMAIL=... ADMIN_TEST_PASSWORD=... npx playwright test tests/admin.spec.ts
   test('admin user sees founder dashboard with stats and users', async ({ page }) => {
-    test.skip(!process.env.ADMIN_MIGRATION_APPLIED, 'migration 017 not applied yet');
+    test.skip(!ADMIN_EMAIL || !ADMIN_PASSWORD, 'admin credentials not provided');
 
     await page.goto('/login');
     await page.getByLabel('Email').fill(ADMIN_EMAIL);
