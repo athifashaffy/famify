@@ -8,8 +8,28 @@ export interface Profile {
   bio: string | null;
   parenting_stage: string | null;
   preferences: Record<string, any>;
+  is_admin?: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface AdminStats {
+  total_users: number;
+  total_families: number;
+  total_children: number;
+  new_users_7d: number;
+  new_users_30d: number;
+  active_users_7d: number;
+}
+
+export interface AdminUserRow {
+  id: string;
+  name: string | null;
+  email: string;
+  role: string | null;
+  family_name: string | null;
+  created_at: string;
+  last_sign_in_at: string | null;
 }
 
 export interface Family {
@@ -68,6 +88,7 @@ export interface Routine {
   days_of_week: number[];
   is_active: boolean;
   sort_order: number;
+  assignee_type: 'parent' | 'family' | 'child' | null;
   created_by: string | null;
   created_at: string;
   updated_at: string;

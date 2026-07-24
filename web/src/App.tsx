@@ -15,6 +15,7 @@ import { NeedlePage } from './pages/NeedlePage';
 import { ChildHubPage } from './pages/ChildHubPage';
 import { ChildDetailPage } from './pages/ChildDetailPage';
 import { SecureSharePage } from './pages/SecureSharePage';
+import { AdminPage } from './pages/AdminPage';
 import { ProfilePage } from './pages/ProfilePage';
 
 const queryClient = new QueryClient();
@@ -50,6 +51,7 @@ function App() {
                 <Route path="/child-hub/:childId" element={<ChildDetailPage />} />
                 <Route path="/planner" element={<PlannerPage />} />
                 <Route path="/needle" element={<NeedlePage />} />
+                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
               </Route>
               <Route path="/" element={<LandingPage />} />

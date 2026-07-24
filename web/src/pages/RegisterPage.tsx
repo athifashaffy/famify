@@ -12,6 +12,7 @@ export function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
 
@@ -31,15 +32,45 @@ export function RegisterPage() {
 
     setLoading(true);
 
-    const { error } = await register(email, password, name);
+    const { error, needsEmailConfirmation } = await register(email, password, name);
 
     if (error) {
       setError(error.message);
+      setLoading(false);
+    } else if (needsEmailConfirmation) {
+      setAwaitingConfirmation(true);
       setLoading(false);
     } else {
       navigate('/family-setup');
     }
   };
+
+  if (awaitingConfirmation) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100 p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mb-4">
+              <h1 className="text-4xl font-bold text-emerald-600">Famify</h1>
+            </div>
+            <CardTitle>Check your email</CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <p className="text-slate-600">
+              We sent a confirmation link to <span className="font-semibold">{email}</span>.
+              Click it to activate your account, then sign in.
+            </p>
+            <p className="text-sm text-slate-500">
+              Don't see it? Check your spam folder — it can take a few minutes to arrive.
+            </p>
+            <Button className="w-full" onClick={() => navigate('/login')}>
+              Go to Sign In
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 to-green-100 p-4">

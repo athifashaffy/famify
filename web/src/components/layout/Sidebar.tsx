@@ -1,5 +1,5 @@
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, CalendarDays, MapPin, Bell, User, Users } from 'lucide-react';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, CalendarDays, MapPin, Bell, User, Users, ShieldCheck } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { usePanel } from '../../context/PanelContext';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +13,11 @@ const navItems = [
 
 export function Sidebar() {
   const { activePanel, togglePanel } = usePanel();
+  const { profile } = useAuth();
+
+  const items = profile?.is_admin
+    ? [...navItems, { to: '/admin', icon: ShieldCheck, label: 'Admin' }]
+    : navItems;
 
   return (
     <div className="hidden md:flex w-64 bg-white border-r border-slate-200 h-screen flex-col">
@@ -27,7 +32,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 px-4">
-        {navItems.map((item) => (
+        {items.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
@@ -53,6 +58,7 @@ export function Sidebar() {
 export function TopRightIcons() {
   const { activePanel, togglePanel } = usePanel();
   const { profile } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="flex items-center gap-2">
@@ -68,13 +74,8 @@ export function TopRightIcons() {
         <Bell size={20} />
       </button>
       <button
-        onClick={() => togglePanel('profile')}
-        className={cn(
-          'w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all',
-          activePanel === 'profile'
-            ? 'ring-2 ring-emerald-500 bg-emerald-500 text-white'
-            : 'bg-emerald-500 text-white hover:ring-2 hover:ring-emerald-300'
-        )}
+        onClick={() => { togglePanel(null); navigate('/profile'); }}
+        className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all bg-emerald-500 text-white hover:ring-2 hover:ring-emerald-300"
       >
         {profile?.name?.[0]?.toUpperCase() || <User size={16} />}
       </button>
@@ -98,11 +99,16 @@ export function MobileHeader() {
 
 export function MobileBottomNav() {
   const { togglePanel } = usePanel();
+  const { profile } = useAuth();
+
+  const items = profile?.is_admin
+    ? [...navItems, { to: '/admin', icon: ShieldCheck, label: 'Admin' }]
+    : navItems;
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-slate-200 safe-area-bottom">
       <nav className="flex justify-around items-center py-2">
-        {navItems.map((item) => (
+        {items.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

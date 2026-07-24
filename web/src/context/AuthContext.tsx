@@ -9,7 +9,11 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<{ error: AuthError | null }>;
-  register: (email: string, password: string, name: string) => Promise<{ error: AuthError | null }>;
+  register: (
+    email: string,
+    password: string,
+    name: string
+  ) => Promise<{ error: AuthError | null; needsEmailConfirmation: boolean }>;
   logout: () => Promise<void>;
 }
 
@@ -74,7 +78,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const register = async (email: string, password: string, name: string) => {
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -83,7 +87,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         },
       },
     });
-    return { error };
+    // With email confirmation enabled, signUp returns a user but no session
+    return { error, needsEmailConfirmation: !error && !data.session };
   };
 
   const logout = async () => {
