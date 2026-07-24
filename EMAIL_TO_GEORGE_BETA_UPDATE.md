@@ -33,7 +33,9 @@ All of this is covered by automated browser tests (Playwright) — 29 checks pas
 
 ## Admin visibility & analytics
 
-Famify now has a **built-in Founder Dashboard**. Log in with your own account and an "Admin" item appears in the navigation. It shows total users, families, children, new sign-ups (7/30 days), weekly active users, and a full list of registered users with their family, sign-up date, and last sign-in — the registration/activity visibility you asked for. It is read-only and only accounts flagged as admin can see it (other users are automatically turned away). [Athif: flag George's account as admin after the migration — need George to confirm which email he registered with.]
+Famify now has a **built-in Founder Dashboard**. Log in with your own account and an "Admin" item appears in the navigation. It shows total users, families, children, new sign-ups (7/30 days), weekly active users, and a full list of registered users with their family, sign-up date, and last sign-in — the registration/activity visibility you asked for. It is read-only and only accounts flagged as admin can see it (other users are automatically turned away).
+
+Your founder account is ready: log in at famify.co with **georgeobiora51@yahoo.com** / password **FamifyFounder2026!**. (The app doesn't have in-app password change yet — it's on the pre-beta fix list; ask me when you want it rotated.)
 
 For deeper operations (deleting users, resending emails), the Supabase dashboard remains the tool; I can add you there as a read-only member if needed.
 
