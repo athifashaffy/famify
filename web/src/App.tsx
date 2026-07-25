@@ -51,8 +51,17 @@ function App() {
                 <Route path="/child-hub/:childId" element={<ChildDetailPage />} />
                 <Route path="/planner" element={<PlannerPage />} />
                 <Route path="/needle" element={<NeedlePage />} />
-                <Route path="/admin" element={<AdminPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+              </Route>
+              {/* Admin works without family membership (founder may have no family) */}
+              <Route
+                element={
+                  <ProtectedRoute requireFamily={false}>
+                    <AppLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route path="/admin" element={<AdminPage />} />
               </Route>
               <Route path="/" element={<LandingPage />} />
             </Routes>
