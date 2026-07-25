@@ -7,7 +7,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { ChildProfile } from '../lib/types';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Edit2, Trash2, Save, Baby, User, MapPin, Heart } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, Baby, User, MapPin, Heart, Copy, Check, UserPlus } from 'lucide-react';
 import { format } from 'date-fns';
 
 const PARENTING_STAGES = [
@@ -34,6 +34,8 @@ export function ProfilePage() {
     bio: '',
     parenting_stage: '',
   });
+
+  const [copiedCode, setCopiedCode] = useState(false);
 
   // Child profiles
   const [children, setChildren] = useState<ChildProfile[]>([]);
@@ -96,6 +98,10 @@ export function ProfilePage() {
 
   const handleAddChild = async () => {
     if (!family || !user) return;
+    if (!childForm.name.trim()) {
+      window.alert("Please enter the child's name");
+      return;
+    }
     await supabase.from('child_profiles').insert({
       family_id: family.id,
       parent_id: user.id,
@@ -115,6 +121,10 @@ export function ProfilePage() {
   };
 
   const handleUpdateChild = async (childId: string) => {
+    if (!childForm.name.trim()) {
+      window.alert("Please enter the child's name");
+      return;
+    }
     await supabase
       .from('child_profiles')
       .update({
@@ -383,17 +393,12 @@ export function ProfilePage() {
         {family && (
           <Card>
             <h2 className="text-lg font-semibold mb-4">Family Information</h2>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div>
                 <span className="text-sm text-slate-500">Family Name:</span>
                 <p className="font-medium">{family.name}</p>
               </div>
-              <div>
-                <span className="text-sm text-slate-500">Invite Code:</span>
-                <p className="font-mono bg-slate-100 px-3 py-2 rounded inline-block text-sm">
-                  {family.invite_code}
-                </p>
-              </div>
+
               <div>
                 <span className="text-sm text-slate-500 block mb-2">Members ({members.length}):</span>
                 <div className="space-y-2">
@@ -408,6 +413,33 @@ export function ProfilePage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Invite Parent */}
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 mb-3">
+                  <UserPlus size={16} className="text-emerald-600" />
+                  <span className="text-sm font-medium text-slate-700">Invite a Parent</span>
+                </div>
+                <p className="text-xs text-slate-500 mb-3">
+                  Share this invite code with your partner. They can use it on the Family Setup page after registering.
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 font-mono bg-slate-100 px-3 py-2 rounded text-sm tracking-widest text-center font-semibold text-slate-800">
+                    {family.invite_code}
+                  </div>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(family.invite_code);
+                      setCopiedCode(true);
+                      setTimeout(() => setCopiedCode(false), 2000);
+                    }}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm font-medium transition-colors"
+                  >
+                    {copiedCode ? <Check size={14} /> : <Copy size={14} />}
+                    {copiedCode ? 'Copied!' : 'Copy'}
+                  </button>
                 </div>
               </div>
             </div>

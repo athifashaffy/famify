@@ -52,7 +52,7 @@ export function DocumentsTab({ childId, familyId }: Props) {
 
     const { data: urlData } = supabase.storage.from('child-documents').getPublicUrl(filePath);
 
-    await supabase.from('child_documents').insert({
+    const { error: insertErr } = await supabase.from('child_documents').insert({
       child_id: childId,
       family_id: familyId,
       file_name: file.name,
@@ -60,6 +60,10 @@ export function DocumentsTab({ childId, familyId }: Props) {
       file_type: file.type,
       uploaded_by: user.id,
     });
+    if (insertErr) {
+      alert('Upload failed: ' + insertErr.message);
+      await supabase.storage.from('child-documents').remove([filePath]);
+    }
 
     setUploading(false);
     if (fileRef.current) fileRef.current.value = '';
@@ -68,7 +72,18 @@ export function DocumentsTab({ childId, familyId }: Props) {
 
   const handleDelete = async (doc: ChildDocument) => {
     if (!confirm(`Delete "${doc.file_name}"?`)) return;
-    await supabase.from('child_documents').delete().eq('id', doc.id);
+    const { error } = await supabase.from('child_documents').delete().eq('id', doc.id);
+    if (error) {
+      alert('Could not delete document. Please try again.');
+      return;
+    }
+    // Remove the file from storage too so it doesn't orphan
+    const marker = '/child-documents/';
+    const idx = doc.file_url?.indexOf(marker) ?? -1;
+    if (idx >= 0) {
+      const path = decodeURIComponent(doc.file_url.slice(idx + marker.length));
+      await supabase.storage.from('child-documents').remove([path]);
+    }
     fetchDocuments();
   };
 

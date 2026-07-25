@@ -1,18 +1,57 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { useFamily } from '../context/FamilyContext';
 import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
 import { supabase } from '../lib/supabase';
 import { ChildProfile } from '../lib/types';
 import { differenceInYears, differenceInMonths } from 'date-fns';
-import { Baby, Plus, Users } from 'lucide-react';
+import { Baby, Plus, Users, X } from 'lucide-react';
 
 export function ChildHubPage() {
+  const { user } = useAuth();
   const { family } = useFamily();
   const navigate = useNavigate();
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [addError, setAddError] = useState('');
+  const [addForm, setAddForm] = useState({ name: '', date_of_birth: '', gender: '' });
+
+  const handleAddChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!family || !user) return;
+    if (!addForm.name.trim()) {
+      setAddError('Please enter a name');
+      return;
+    }
+    setSaving(true);
+    setAddError('');
+    const payload = {
+      family_id: family.id,
+      parent_id: user.id,
+      name: addForm.name.trim(),
+      date_of_birth: addForm.date_of_birth || null,
+    };
+    let { error } = await supabase
+      .from('child_profiles')
+      .insert({ ...payload, gender: addForm.gender || null });
+    if (error && /gender/.test(error.message)) {
+      // Migration 018 not applied yet — insert without the column
+      ({ error } = await supabase.from('child_profiles').insert(payload));
+    }
+    setSaving(false);
+    if (error) {
+      setAddError(error.message);
+      return;
+    }
+    setAddForm({ name: '', date_of_birth: '', gender: '' });
+    setShowAddForm(false);
+    fetchChildren();
+  };
 
   useEffect(() => {
     if (family) {
@@ -73,13 +112,84 @@ export function ChildHubPage() {
           </p>
         </div>
         <Button
-          onClick={() => navigate('/child-hub/new')}
+          onClick={() => setShowAddForm(true)}
           className="bg-emerald-500 hover:bg-emerald-600 gap-2"
         >
           <Plus size={18} />
           Add Child
         </Button>
       </div>
+
+      {/* Add Child form */}
+      {showAddForm && (
+        <Card className="p-5 mb-6" data-testid="add-child-form">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">Add a Child</h2>
+            <button
+              type="button"
+              title="Close"
+              onClick={() => setShowAddForm(false)}
+              className="text-slate-400 hover:text-slate-600"
+            >
+              <X size={18} />
+            </button>
+          </div>
+          <form onSubmit={handleAddChild} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label htmlFor="child-name" className="block text-sm font-medium text-slate-700 mb-1">
+                Name
+              </label>
+              <Input
+                id="child-name"
+                value={addForm.name}
+                onChange={(e) => setAddForm({ ...addForm, name: e.target.value })}
+                placeholder="Child's name"
+                required
+              />
+            </div>
+            <div>
+              <label htmlFor="child-dob" className="block text-sm font-medium text-slate-700 mb-1">
+                Date of Birth
+              </label>
+              <Input
+                id="child-dob"
+                type="date"
+                value={addForm.date_of_birth}
+                onChange={(e) => setAddForm({ ...addForm, date_of_birth: e.target.value })}
+              />
+            </div>
+            <div>
+              <label htmlFor="child-gender" className="block text-sm font-medium text-slate-700 mb-1">
+                Gender
+              </label>
+              <select
+                id="child-gender"
+                value={addForm.gender}
+                onChange={(e) => setAddForm({ ...addForm, gender: e.target.value })}
+                className="flex h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              >
+                <option value="">Prefer not to say</option>
+                <option value="girl">Girl</option>
+                <option value="boy">Boy</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            {addError && (
+              <div className="sm:col-span-3 text-sm text-rose-600 bg-rose-50 p-3 rounded-md">
+                {addError}
+              </div>
+            )}
+            <div className="sm:col-span-3 flex gap-2">
+              <Button type="submit" disabled={saving}>
+                {saving ? 'Adding...' : 'Add Child'}
+              </Button>
+              <Button type="button" variant="outline" onClick={() => setShowAddForm(false)}>
+                Cancel
+              </Button>
+            </div>
+          </form>
+        </Card>
+      )}
 
       {/* Children Grid */}
       {children.length === 0 ? (
@@ -93,7 +203,7 @@ export function ChildHubPage() {
               Add your children's profiles to keep track of their health records, routines, and important information all in one place.
             </p>
             <Button
-              onClick={() => navigate('/child-hub/new')}
+              onClick={() => setShowAddForm(true)}
               className="bg-emerald-500 hover:bg-emerald-600 gap-2 mt-2"
             >
               <Plus size={18} />

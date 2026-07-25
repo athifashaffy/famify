@@ -6,24 +6,21 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { getGreeting, formatTime, getInitials } from '../lib/utils';
 import { supabase } from '../lib/supabase';
-import { Event, Task, MealPlan, Reminder, Note, Notification, ChildProfile } from '../lib/types';
+import { Event, Task, MealPlan, Note, Routine, ChildProfile } from '../lib/types';
 import { CATEGORY_COLORS, MEAL_COLORS } from '../lib/constants';
 import { format, differenceInYears, differenceInMonths } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X, Bell, Baby } from 'lucide-react';
-import { usePanel } from '../context/PanelContext';
+import { Plus, X, Baby, ChevronRight } from 'lucide-react';
 
 export function DashboardPage() {
   const { profile, user } = useAuth();
   const { family, members } = useFamily();
-  const { togglePanel } = usePanel();
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [meals, setMeals] = useState<MealPlan[]>([]);
-  const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [routines, setRoutines] = useState<Routine[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
-  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [children, setChildren] = useState<ChildProfile[]>([]);
   const [showQuickAdd, setShowQuickAdd] = useState(false);
   const [quickTaskTitle, setQuickTaskTitle] = useState('');
@@ -49,7 +46,7 @@ export function DashboardPage() {
 
     const today = format(new Date(), 'yyyy-MM-dd');
 
-    const [eventsRes, tasksRes, mealsRes, remindersRes, notesRes, childrenRes] = await Promise.all([
+    const [eventsRes, tasksRes, mealsRes, routinesRes, notesRes, childrenRes] = await Promise.all([
       supabase
         .from('events')
         .select('*')
@@ -72,12 +69,12 @@ export function DashboardPage() {
         .order('date')
         .limit(6),
       supabase
-        .from('reminders')
+        .from('routines')
         .select('*')
         .eq('family_id', family.id)
-        .eq('is_completed', false)
-        .order('remind_at')
-        .limit(3),
+        .eq('is_active', true)
+        .order('sort_order')
+        .limit(5),
       supabase
         .from('notes')
         .select('*')
@@ -94,31 +91,23 @@ export function DashboardPage() {
     if (eventsRes.data) setEvents(eventsRes.data);
     if (tasksRes.data) setTasks(tasksRes.data);
     if (mealsRes.data) setMeals(mealsRes.data);
-    if (remindersRes.data) setReminders(remindersRes.data);
+    if (routinesRes.data) setRoutines(routinesRes.data);
     if (notesRes.data) setNotes(notesRes.data);
     if (childrenRes.data) setChildren(childrenRes.data);
-
-    // Fetch notifications separately (uses user_id)
-    if (user) {
-      const { data: notifData } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('is_read', false)
-        .order('created_at', { ascending: false })
-        .limit(3);
-      if (notifData) setNotifications(notifData);
-    }
   };
 
   const handleQuickAddTask = async () => {
     if (!family || !user || !quickTaskTitle.trim()) return;
-    await supabase.from('tasks').insert({
+    const { error } = await supabase.from('tasks').insert({
       family_id: family.id,
       created_by: user.id,
       title: quickTaskTitle.trim(),
       priority: 'medium',
     });
+    if (error) {
+      window.alert('Could not add task. Please try again.');
+      return;
+    }
     setQuickTaskTitle('');
     setShowQuickAdd(false);
     fetchData();
@@ -229,9 +218,17 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Events Widget */}
         <Card className="lg:col-span-2 border-l-4 border-l-emerald-500">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            📅 Today's Events
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              📅 Today's Events
+            </h2>
+            <button
+              onClick={() => navigate('/planner')}
+              className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              Manage <ChevronRight size={14} />
+            </button>
+          </div>
           <div className="space-y-3">
             {events.length === 0 ? (
               <p className="text-slate-500 text-sm">No events scheduled</p>
@@ -256,53 +253,33 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        {/* Notifications Preview Widget */}
-        <Card className="border-l-4 border-l-amber-400">
+        {/* Routines Widget */}
+        <Card className="border-l-4 border-l-violet-400 cursor-pointer" onClick={() => navigate('/planner?tab=routines')}>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Bell size={18} className="text-amber-500" /> Notifications
+              🔄 Routines
             </h2>
-            {notifications.length > 0 && (
-              <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full text-xs font-medium">
-                {notifications.length} new
-              </span>
-            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); navigate('/planner?tab=routines'); }}
+              className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              Manage <ChevronRight size={14} />
+            </button>
           </div>
           <div className="space-y-2">
-            {notifications.length === 0 ? (
-              <p className="text-slate-500 text-sm">All caught up!</p>
+            {routines.length === 0 ? (
+              <p className="text-slate-500 text-sm">No routines set up</p>
             ) : (
-              notifications.map((notif) => (
-                <div key={notif.id} className="flex items-start gap-2 p-2 bg-amber-50 rounded border-l-2 border-amber-400">
+              routines.map((routine) => (
+                <div key={routine.id} className="flex items-center gap-2 p-2 bg-violet-50 rounded border-l-2 border-violet-400">
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-slate-900">{notif.title}</p>
-                    {notif.message && <p className="text-xs text-slate-500 mt-0.5">{notif.message}</p>}
+                    <p className="text-sm font-medium text-slate-900">{routine.title}</p>
+                    {routine.time_of_day && (
+                      <p className="text-xs text-slate-500">{routine.time_of_day}</p>
+                    )}
                   </div>
                 </div>
               ))
-            )}
-            <button
-              onClick={() => togglePanel('notifications')}
-              className="text-xs text-emerald-600 hover:text-emerald-700 font-medium mt-1"
-            >
-              View all notifications →
-            </button>
-          </div>
-        </Card>
-
-        {/* Reminders Widget */}
-        <Card>
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            🔔 Reminders
-          </h2>
-          <div className="space-y-2">
-            {reminders.map((reminder) => (
-              <div key={reminder.id} className="flex items-center gap-2 p-2 bg-emerald-50 rounded border-l-2 border-emerald-500">
-                <span className="text-sm">{reminder.title}</span>
-              </div>
-            ))}
-            {reminders.length === 0 && (
-              <p className="text-slate-500 text-sm">No reminders</p>
             )}
           </div>
         </Card>
@@ -313,13 +290,21 @@ export function DashboardPage() {
             <h2 className="text-lg font-semibold flex items-center gap-2">
               ✅ Tasks
             </h2>
-            <button
-              onClick={() => setShowQuickAdd(true)}
-              className="p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200"
-              title="Quick add task"
-            >
-              <Plus size={16} />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowQuickAdd(true)}
+                className="p-1.5 rounded-full bg-emerald-100 text-emerald-600 hover:bg-emerald-200"
+                title="Quick add task"
+              >
+                <Plus size={16} />
+              </button>
+              <button
+                onClick={() => navigate('/planner')}
+                className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+              >
+                Manage <ChevronRight size={14} />
+              </button>
+            </div>
           </div>
           <div className="space-y-2">
             {tasks.map((task) => (
@@ -343,9 +328,17 @@ export function DashboardPage() {
 
         {/* Meal Planner Widget */}
         <Card className="lg:col-span-2 bg-emerald-50/30">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            🍽 Meal Planner
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              🍽 Meal Planner
+            </h2>
+            <button
+              onClick={() => navigate('/planner')}
+              className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              Manage <ChevronRight size={14} />
+            </button>
+          </div>
           <div className="space-y-3">
             {meals.map((meal) => (
               <div key={meal.id} className="flex items-center gap-3">
@@ -367,15 +360,23 @@ export function DashboardPage() {
 
         {/* Notes Widget */}
         <Card className="bg-amber-50">
-          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            📝 Notes
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              📝 Notes
+            </h2>
+            <button
+              onClick={() => navigate('/planner')}
+              className="flex items-center gap-1 text-xs text-emerald-600 hover:text-emerald-700 font-medium"
+            >
+              Manage <ChevronRight size={14} />
+            </button>
+          </div>
           {notes.length > 0 ? (
-            <div className="text-center">
-              <div className="text-2xl font-bold text-rose-500 mb-2">
+            <div>
+              <div className="font-semibold text-slate-900 text-sm mb-1">
                 {notes[0].title || 'Note'}
               </div>
-              <div className="text-lg text-emerald-600 font-semibold">
+              <div className="text-sm text-slate-600 line-clamp-3">
                 {notes[0].content || ''}
               </div>
             </div>

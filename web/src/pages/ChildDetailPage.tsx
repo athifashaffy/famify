@@ -5,7 +5,7 @@ import { Button } from '../components/ui/button';
 import { supabase } from '../lib/supabase';
 import { ChildProfile } from '../lib/types';
 import { differenceInYears, differenceInMonths } from 'date-fns';
-import { ArrowLeft, Heart, Clock, CalendarClock, FileText, Share2, User } from 'lucide-react';
+import { ArrowLeft, Heart, CalendarClock, FileText, Share2, User, Moon } from 'lucide-react';
 import { OverviewTab } from '../components/child-hub/OverviewTab';
 import { HealthTab } from '../components/child-hub/HealthTab';
 import { RoutineTab } from '../components/child-hub/RoutineTab';
@@ -24,7 +24,7 @@ interface Tab {
 const TABS: Tab[] = [
   { id: 'overview', label: 'Overview', icon: <User size={16} /> },
   { id: 'health', label: 'Health', icon: <Heart size={16} /> },
-  { id: 'routine', label: 'Routine', icon: <Clock size={16} /> },
+  { id: 'routine', label: 'Routine', icon: <Moon size={16} /> },
   { id: 'schedule', label: 'Schedule', icon: <CalendarClock size={16} /> },
   { id: 'documents', label: 'Documents', icon: <FileText size={16} /> },
   { id: 'share', label: 'Share', icon: <Share2 size={16} /> },

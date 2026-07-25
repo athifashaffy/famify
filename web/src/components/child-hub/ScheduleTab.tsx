@@ -13,13 +13,16 @@ import {
   Stethoscope,
   Phone,
   StickyNote,
-
   Plus,
   Clock,
   CheckCircle2,
   Circle,
   ChevronDown,
   ChevronUp,
+  Edit2,
+  Save,
+  X,
+  Printer,
 } from 'lucide-react';
 
 interface Props {
@@ -118,6 +121,8 @@ export function ScheduleTab({ childId, familyId }: Props) {
   const [notes, setNotes] = useState<DailyNote[]>([]);
   const [newNote, setNewNote] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editingNoteText, setEditingNoteText] = useState('');
 
   // Collapsible sections
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set());
@@ -301,8 +306,24 @@ export function ScheduleTab({ childId, familyId }: Props) {
   };
 
   const deleteNote = async (noteId: string) => {
-    await supabase.from('child_schedule_notes').delete().eq('id', noteId);
+    if (!window.confirm('Delete this note?')) return;
+    const { error } = await supabase.from('child_schedule_notes').delete().eq('id', noteId);
+    if (error) {
+      window.alert('Could not delete note. Please try again.');
+      return;
+    }
     setNotes((prev) => prev.filter((n) => n.id !== noteId));
+  };
+
+  const saveEditNote = async (noteId: string) => {
+    if (!editingNoteText.trim()) return;
+    await supabase.from('child_schedule_notes').update({ content: editingNoteText.trim() }).eq('id', noteId);
+    setNotes((prev) => prev.map((n) => n.id === noteId ? { ...n, content: editingNoteText.trim() } : n));
+    setEditingNoteId(null);
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   // Group schedule items by period
@@ -339,19 +360,24 @@ export function ScheduleTab({ childId, familyId }: Props) {
             {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
         </div>
-        {totalItems > 0 && (
-          <div className="text-right">
-            <div className="text-sm font-medium text-slate-700">
-              {completedCount}/{totalItems} done
+        <div className="flex items-center gap-3">
+          {totalItems > 0 && (
+            <div className="text-right">
+              <div className="text-sm font-medium text-slate-700">
+                {completedCount}/{totalItems} done
+              </div>
+              <div className="w-24 h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden">
+                <div
+                  className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+                  style={{ width: `${totalItems > 0 ? (completedCount / totalItems) * 100 : 0}%` }}
+                />
+              </div>
             </div>
-            <div className="w-24 h-1.5 bg-slate-200 rounded-full mt-1 overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 rounded-full transition-all duration-300"
-                style={{ width: `${totalItems > 0 ? (completedCount / totalItems) * 100 : 0}%` }}
-              />
-            </div>
-          </div>
-        )}
+          )}
+          <button onClick={handlePrint} className="p-2 text-slate-400 hover:text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors" title="Print Schedule">
+            <Printer size={18} />
+          </button>
+        </div>
       </div>
 
       {/* Daily Schedule - Time-based sections */}
@@ -637,23 +663,43 @@ export function ScheduleTab({ childId, familyId }: Props) {
               <h4 className="text-xs font-medium text-slate-400 uppercase tracking-wide">Recent Notes</h4>
               {notes.map((note) => (
                 <div key={note.id} className="p-3 bg-slate-50 rounded-lg group">
-                  <p className="text-sm text-slate-700 whitespace-pre-wrap">{note.content}</p>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-slate-400">
-                      {new Date(note.created_at).toLocaleDateString('en-US', {
-                        month: 'short',
-                        day: 'numeric',
-                        hour: 'numeric',
-                        minute: '2-digit',
-                      })}
-                    </span>
-                    <button
-                      onClick={() => deleteNote(note.id)}
-                      className="text-xs text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                      Remove
-                    </button>
-                  </div>
+                  {editingNoteId === note.id ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editingNoteText}
+                        onChange={(e) => setEditingNoteText(e.target.value)}
+                        className="w-full rounded-md border border-slate-200 px-3 py-2 text-sm focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none resize-none"
+                        rows={3}
+                      />
+                      <div className="flex gap-2">
+                        <button onClick={() => saveEditNote(note.id)} className="flex items-center gap-1 text-xs text-emerald-600 font-medium hover:text-emerald-700">
+                          <Save size={12} /> Save
+                        </button>
+                        <button onClick={() => setEditingNoteId(null)} className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
+                          <X size={12} /> Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <p className="text-sm text-slate-700 whitespace-pre-wrap">{note.content}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <span className="text-xs text-slate-400">
+                          {new Date(note.created_at).toLocaleDateString('en-US', {
+                            month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit',
+                          })}
+                        </span>
+                        <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => { setEditingNoteId(note.id); setEditingNoteText(note.content); }} className="text-xs text-slate-400 hover:text-emerald-600 flex items-center gap-1">
+                            <Edit2 size={11} /> Edit
+                          </button>
+                          <button onClick={() => deleteNote(note.id)} className="text-xs text-slate-300 hover:text-rose-500">
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>
