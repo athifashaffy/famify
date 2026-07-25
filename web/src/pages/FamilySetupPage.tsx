@@ -4,10 +4,14 @@ import { useFamily } from '../context/FamilyContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PENDING_INVITE_KEY } from '../lib/constants';
 
 export function FamilySetupPage() {
   const [familyName, setFamilyName] = useState('');
-  const [inviteCode, setInviteCode] = useState('');
+  // Prefill from a shared invite link that was followed before registering
+  const [inviteCode, setInviteCode] = useState(
+    () => localStorage.getItem(PENDING_INVITE_KEY) || ''
+  );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { family, createFamily, joinFamily } = useFamily();
@@ -32,6 +36,7 @@ export function FamilySetupPage() {
       setError(error.message);
       setLoading(false);
     } else {
+      localStorage.removeItem(PENDING_INVITE_KEY);
       navigate('/dashboard');
     }
   };
@@ -47,6 +52,7 @@ export function FamilySetupPage() {
       setError(error.message);
       setLoading(false);
     } else {
+      localStorage.removeItem(PENDING_INVITE_KEY);
       navigate('/dashboard');
     }
   };

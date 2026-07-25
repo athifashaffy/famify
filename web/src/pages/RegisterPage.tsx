@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { PENDING_INVITE_KEY } from '../lib/constants';
 
 export function RegisterPage() {
+  const hasPendingInvite = Boolean(localStorage.getItem(PENDING_INVITE_KEY));
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -83,6 +85,15 @@ export function RegisterPage() {
           <CardTitle>Create Account</CardTitle>
         </CardHeader>
         <CardContent>
+          {hasPendingInvite && (
+            <div
+              data-testid="invite-banner"
+              className="mb-4 text-sm text-emerald-800 bg-emerald-50 border border-emerald-200 p-3 rounded-md"
+            >
+              💚 You've been invited to join a family on Famify. Create your account and
+              you'll be connected automatically.
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1">

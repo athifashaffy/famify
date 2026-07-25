@@ -58,6 +58,9 @@ export const DEMO_CREDENTIALS = {
   password: 'Demo123!',
 };
 
+// localStorage key carrying an invite code through registration
+export const PENDING_INVITE_KEY = 'famify-pending-invite';
+
 export const PRIORITY_COLORS = {
   low: 'bg-slate-100 text-slate-700',
   medium: 'bg-amber-100 text-amber-700',

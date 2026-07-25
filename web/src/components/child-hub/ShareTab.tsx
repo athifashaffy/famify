@@ -86,7 +86,7 @@ export function ShareTab({ childId, familyId, child }: Props) {
 
   const copyLink = (share: ChildSecureShare) => {
     const url = `${window.location.origin}/share/${share.share_token}`;
-    navigator.clipboard.writeText(`Link: ${url}\nAccess Code: ${share.access_code}`);
+    navigator.clipboard.writeText(url);
     setCopied(share.id);
     setTimeout(() => setCopied(null), 2000);
   };

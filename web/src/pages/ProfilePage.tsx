@@ -416,30 +416,46 @@ export function ProfilePage() {
                 </div>
               </div>
 
-              {/* Invite Parent */}
-              <div className="pt-2 border-t border-slate-100">
+              {/* Invite Partner */}
+              <div className="pt-2 border-t border-slate-100" data-testid="invite-partner">
                 <div className="flex items-center gap-2 mb-3">
                   <UserPlus size={16} className="text-emerald-600" />
-                  <span className="text-sm font-medium text-slate-700">Invite a Parent</span>
+                  <span className="text-sm font-medium text-slate-700">Invite your Partner</span>
                 </div>
                 <p className="text-xs text-slate-500 mb-3">
-                  Share this invite code with your partner. They can use it on the Family Setup page after registering.
+                  Send your wife, husband, or co-parent this link — they'll be added to your
+                  family automatically after they sign up.
                 </p>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 font-mono bg-slate-100 px-3 py-2 rounded text-sm tracking-widest text-center font-semibold text-slate-800">
-                    {family.invite_code}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1 bg-slate-100 px-3 py-2 rounded text-sm text-slate-800 truncate">
+                    {`${window.location.origin}/join/${family.invite_code}`}
                   </div>
                   <button
                     onClick={() => {
-                      navigator.clipboard.writeText(family.invite_code);
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/join/${family.invite_code}`
+                      );
                       setCopiedCode(true);
                       setTimeout(() => setCopiedCode(false), 2000);
                     }}
                     className="flex items-center gap-1.5 px-3 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-sm font-medium transition-colors"
                   >
                     {copiedCode ? <Check size={14} /> : <Copy size={14} />}
-                    {copiedCode ? 'Copied!' : 'Copy'}
+                    {copiedCode ? 'Copied!' : 'Copy link'}
                   </button>
+                </div>
+                <div className="flex items-center justify-between">
+                  <a
+                    href={`mailto:?subject=${encodeURIComponent('Join our family on Famify')}&body=${encodeURIComponent(
+                      `Hi! I set up our family on Famify — tap this link to join us:\n\n${window.location.origin}/join/${family.invite_code}\n\nSee you there!`
+                    )}`}
+                    className="text-sm text-emerald-600 font-medium hover:underline"
+                  >
+                    Send by email instead
+                  </a>
+                  <span className="text-xs text-slate-400">
+                    Code: <span className="font-mono font-semibold">{family.invite_code}</span>
+                  </span>
                 </div>
               </div>
             </div>

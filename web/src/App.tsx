@@ -6,6 +6,7 @@ import { PanelProvider } from './context/PanelContext';
 import { ProtectedRoute } from './components/shared/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { LandingPage } from './pages/LandingPage';
+import { JoinFamilyPage } from './pages/JoinFamilyPage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { FamilySetupPage } from './pages/FamilySetupPage';
@@ -31,6 +32,7 @@ function App() {
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/share/:token" element={<SecureSharePage />} />
+              <Route path="/join/:code" element={<JoinFamilyPage />} />
               <Route
                 path="/family-setup"
                 element={

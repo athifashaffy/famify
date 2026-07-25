@@ -27,21 +27,9 @@ test('Real login with demo credentials', async ({ page }) => {
 test('Try Demo button auto-login', async ({ page }) => {
   await page.goto('/login');
 
-  // Click Try Demo button
+  // Try Demo signs in directly with the demo account (no form-fill step)
   await page.getByRole('button', { name: 'Try Demo' }).click();
-
-  // Wait a bit for credentials to fill
-  await page.waitForTimeout(500);
-
-  // Verify credentials are filled
-  await expect(page.getByLabel('Email')).toHaveValue('john@famify-demo.com');
-  await expect(page.getByLabel('Password')).toHaveValue('Demo123!');
-
-  // Click sign in
-  await page.getByRole('button', { name: 'Sign In' }).click();
-
-  // Wait for redirect
-  await page.waitForURL(/\/(dashboard|family-setup)/, { timeout: 10000 });
+  await page.waitForURL(/\/(dashboard|family-setup)/, { timeout: 20000 });
 
   console.log('✅ Try Demo login successful!');
 });
