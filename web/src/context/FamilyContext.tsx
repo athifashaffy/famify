@@ -22,6 +22,9 @@ export function FamilyProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user) {
+      // Mark loading before the fetch so route guards wait instead of
+      // concluding "no family" and flashing the family-setup screen
+      setLoading(true);
       fetchFamily();
     } else {
       setFamily(null);
