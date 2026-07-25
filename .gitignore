@@ -50,4 +50,3 @@ mobile/pubspec.lock
 config.bat
 temp_auto_push.bat
 temp_interactive_push.bat
-.env
