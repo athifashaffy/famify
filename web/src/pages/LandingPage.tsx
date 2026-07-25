@@ -91,10 +91,10 @@ function HeroVideo() {
           muted
           playsInline
           preload="metadata"
-          poster="/videos/famify-intro-poster.jpg"
+          poster="/videos/famify-intro-poster.jpg?v=2"
           onError={() => setVideoMissing(true)}
         >
-          <source src="/videos/famify-intro.mp4" type="video/mp4" />
+          <source src="/videos/famify-intro.mp4?v=2" type="video/mp4" />
         </video>
       )}
     </div>
@@ -226,9 +226,9 @@ export function LandingPage() {
               muted
               playsInline
               preload="metadata"
-              poster="/videos/famify-mother-son-poster.jpg"
+              poster="/videos/famify-mother-son-poster.jpg?v=2"
             >
-              <source src="/videos/famify-mother-son.mp4" type="video/mp4" />
+              <source src="/videos/famify-mother-son.mp4?v=2" type="video/mp4" />
             </video>
           </div>
         </div>
