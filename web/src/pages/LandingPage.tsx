@@ -213,6 +213,36 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* Second video */}
+      <section className="max-w-6xl mx-auto px-4 py-16 grid lg:grid-cols-2 gap-10 items-center">
+        <div className="flex justify-center lg:justify-start">
+          <div
+            data-testid="second-video"
+            className="w-full max-w-md rounded-2xl overflow-hidden shadow-xl ring-1 ring-emerald-200 bg-white"
+          >
+            <video
+              className="w-full aspect-video object-cover"
+              controls
+              muted
+              playsInline
+              preload="metadata"
+              poster="/videos/famify-mother-son-poster.jpg"
+            >
+              <source src="/videos/famify-mother-son.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+        <div>
+          <h2 className="font-display font-bold text-3xl text-slate-800">
+            Every moment, organized
+          </h2>
+          <p className="mt-4 text-lg text-slate-600 max-w-xl">
+            From school runs to bedtime routines, Famify keeps parents and kids on the same
+            page — so you spend less time coordinating and more time together.
+          </p>
+        </div>
+      </section>
+
       {/* Footer CTA */}
       <footer className="py-12 text-center">
         <p className="text-slate-600">Ready to simplify your family life?</p>
