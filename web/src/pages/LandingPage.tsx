@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CalendarDays, Users, MapPin, Star, PlayCircle } from 'lucide-react';
+import { Star, PlayCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 // Placeholder quotes for the beta launch — replace with real family feedback
@@ -17,14 +17,14 @@ const TESTIMONIALS = [
     name: 'Daniel & Priya',
     role: 'Co-parenting household',
     quote:
-      'Being able to share schedules and health info securely between both homes has made handoffs so much less stressful.',
+      'Being able to share schedules and important info securely between both homes has made handoffs so much less stressful.',
     rating: 5,
   },
   {
     name: 'Sarah K.',
     role: 'Mom of three',
     quote:
-      'The planner keeps our week sane, and the Needle feature found us a walk-in clinic in minutes when our youngest spiked a fever.',
+      'The planner keeps our week sane — school runs, meals, and activities for three kids, and nothing falls through the cracks anymore.',
     rating: 4,
   },
   {
@@ -33,24 +33,6 @@ const TESTIMONIALS = [
     quote:
       "It's simple enough that both of us actually use it. That's the first time any family app has managed that in our house.",
     rating: 5,
-  },
-];
-
-const FEATURES = [
-  {
-    icon: CalendarDays,
-    title: 'Family Planner',
-    text: 'Shared calendar, meals, and routines so the whole week is visible to everyone at a glance.',
-  },
-  {
-    icon: Users,
-    title: 'Child Hub',
-    text: 'Health records, documents, and routines for each child — securely shareable with caregivers.',
-  },
-  {
-    icon: MapPin,
-    title: 'Needle',
-    text: 'Find nearby hospitals and clinics fast when your family needs care.',
   },
 ];
 
@@ -149,8 +131,8 @@ export function LandingPage() {
             Organize your family life in one place
           </p>
           <p className="mt-4 text-lg text-slate-600 max-w-xl">
-            Shared planning, child health records, secure caregiver sharing, and nearby-care
-            search — built for busy families.
+            Shared planning, routines, and everything your family juggles — finally in one
+            place, built for busy families.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
@@ -169,19 +151,6 @@ export function LandingPage() {
         </div>
         <div className="flex justify-center lg:justify-end">
           <HeroVideo />
-        </div>
-      </section>
-
-      {/* Features */}
-      <section className="max-w-6xl mx-auto px-4 pb-16">
-        <div className="grid sm:grid-cols-3 gap-6">
-          {FEATURES.map(({ icon: Icon, title, text }) => (
-            <div key={title} className="bg-white rounded-xl shadow-sm ring-1 ring-emerald-100 p-6">
-              <Icon className="w-8 h-8 text-emerald-500 mb-3" />
-              <h3 className="font-display font-semibold text-lg text-slate-800">{title}</h3>
-              <p className="mt-2 text-sm text-slate-600">{text}</p>
-            </div>
-          ))}
         </div>
       </section>
 
